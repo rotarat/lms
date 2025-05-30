@@ -1,0 +1,3 @@
+.blur-backdrop .modal-backdrop {
+  backdrop-filter: blur(4px);
+}

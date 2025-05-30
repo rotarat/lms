@@ -1,0 +1,21 @@
+
+.balloon {
+  display: inline-block;
+  padding: 1rem 1.5rem;         /* bigger padding */
+  border-radius: 1rem;
+  background-color: #e0f7fa;   /* same pale background */
+  max-width: 90%;              /* wider */
+  word-wrap: break-word;
+  font-size: 1.25rem;          /* larger text */
+  color: hotpink;              /* pink text */
+}
+
+.balloon.left {
+  align-self: flex-start;
+  margin-right: auto;
+}
+
+.balloon.right {
+  align-self: flex-end;
+  margin-left: auto;
+}
