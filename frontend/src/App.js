@@ -53,7 +53,18 @@ export default function App() {
           </Route>
         </Route>
 
+          {routesConfig.shared.map(r => (
+            <Route
+              key={r.path}
+              path={r.path}
+              element={<r.element/>}
+            />
+          ))}
+            {/* default to student/home */}
+            {/* <Route index element={<Navigate to="home" replace />} /> */}
+
         {/*** 2) PORTAL (authenticated‐only) ***/}
+
         <Route path="portal/*" element={<RequireAuth><PortalLayout/></RequireAuth>}>
           {/* /portal → redirect to /portal/{role} */}
           <Route index element={<RoleRedirect />} />
@@ -71,7 +82,7 @@ export default function App() {
               />
             ))}
             {/* default to student/home */}
-            <Route index element={<Navigate to="home" replace />} />
+            {/* <Route index element={<Navigate to="home" replace />} /> */}
           </Route>
 
           {/* TEACHER PORTAL */}
@@ -79,6 +90,7 @@ export default function App() {
             path="teacher/*"
             element={<TeacherPortalLayout/>}
           >
+            
             {routesConfig.teacher.map(r => (
               <Route
                 key={r.path}

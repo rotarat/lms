@@ -16,9 +16,9 @@ export function RequireRole({ allowedRoles = [], children }) {
     return <div className="d-flex justify-content-center py-5"><Spinner /></div>
   }
 
-  if (!user) {
-    return <Navigate to="/login" replace />
-  }
+  // if (!user) {
+  //   return <Navigate to="/login" replace />
+  // }
 
   if (!allowedRoles.includes(profile.role)) {
     return <Navigate to="/" replace />

@@ -3,8 +3,10 @@ import PortalLayout from '../../../layouts/PortalLayout'
 
 export default function Home() {
   return (
-    <PortalLayout>
-      <Outlet/>
-    </PortalLayout>
+      <div>
+coming soon
+        <Outlet/>
+      </div>
+
   )
 }

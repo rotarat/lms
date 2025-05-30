@@ -5,9 +5,9 @@ import PortalLayout from './PortalLayout';
 const StudentLayout = () => {
   return (
     <RequireRole allowedRoles={['student']}>
-      <PortalLayout>
+      {/* <PortalLayout> */}
         <Outlet /> {/* Nested routes (list of posts or individual post) will be rendered here */}
-      </PortalLayout>
+      {/* </PortalLayout> */}
     </RequireRole>
   );
 };

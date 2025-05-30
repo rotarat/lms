@@ -1,8 +1,13 @@
-import PortalLayout from '../../../layouts/PortalLayout'
+import React from 'react'
+import { Outlet } from 'react-router'
 
-export default function QuizPage() {
+const QuizPage = () => {
   return (
-    <PortalLayout>
-    </PortalLayout>
+    <div>
+      <Outlet/>
+      Comming Soon
+    </div>
   )
 }
+
+export default QuizPage
