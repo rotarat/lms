@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { resources } from '../../../shared/api/resources'
-import { getQuiz }   from '../../../shared/api/ai'    // your existing helper
+import { coursesApi } from '../../../shared/api/resourses'
+import { getQuiz }   from '../../../shared/api/ai'
 
 // Fisher–Yates shuffle
 function shuffleArray(arr) {
@@ -37,7 +37,7 @@ export function useQuiz() {
 
   // load categories (courses)
   useEffect(() => {
-    resources.courses
+    coursesApi
       .list()
       .then(arr => {
         setCoursesList(arr)
