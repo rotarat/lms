@@ -1,8 +1,12 @@
-import PortalLayout from '../../../layouts/PortalLayout'
+import DiagramContainer from '../containers/DiagramContainer';
 
-export default function DiagramsPage() {
+const DiagramPage = () => {
   return (
-    <PortalLayout>
-    </PortalLayout>
-  )
-}
+    <div className="container mt-4">
+      <h2 className="text-center mb-4">Welcome to the AI Diagram Generator</h2>
+      <DiagramContainer />
+    </div>
+  );
+};
+
+export default DiagramPage
