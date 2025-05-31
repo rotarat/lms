@@ -33,8 +33,7 @@ export function PublicNavbar() {
                 className={classNames('dropdown-menu', { show: open })}
                 aria-labelledby="resourcesDropdown"
               >
-                <li><Link className="dropdown-item" to="/resources/articles">Articles</Link></li>
-                <li><Link className="dropdown-item" to="/resources/videos">Videos</Link></li>
+                <li><Link className="dropdown-item" to="/resources/diagram">Diagram</Link></li>
               </ul>
             </li>
           </ul>

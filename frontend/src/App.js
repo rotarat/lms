@@ -15,9 +15,8 @@ import TeacherPortalLayout     from './layouts/TeacherLayout'
 // Public pages
 import HomePage                from './applications/public/pages/HomePage'
 import PublicCoursesPage       from './applications/public/pages/PublicCourses'
-// import CourseDetailPage        from './applications/public/pages/CourseDetailPage'
-// import ArticlesPage            from './applications/public/pages/ArticlesPage'
-// import VideosPage              from './applications/public/pages/VideosPage'
+import Resource from './applications/public/pages/Resources'
+import DiagramResource from './applications/public/pages/DiagramResource'
 
 // Auth pages
 import LoginPage               from './features/authentication/pages/LoginPage'
@@ -43,25 +42,17 @@ export default function App() {
           {/* courses */}
           <Route path="courses">
             <Route index element={<PublicCoursesPage/>}/>
-            {/* <Route path=":courseId" element={<CourseDetailPage/>}/> */}
           </Route>
 
           {/* resources */}
           <Route path="resources">
-            {/* <Route path="articles" element={<ArticlesPage/>}/>
-            <Route path="videos"   element={<VideosPage/>}/> */}
+            <Route index element={<Resource/>}/>
+            <Route path="diagram" element={<DiagramResource/>}/>
           </Route>
-        </Route>
 
-          {routesConfig.shared.map(r => (
-            <Route
-              key={r.path}
-              path={r.path}
-              element={<r.element/>}
-            />
-          ))}
-            {/* default to student/home */}
-            {/* <Route index element={<Navigate to="home" replace />} /> */}
+          <Route index element={<Navigate to="home" replace />} />
+
+        </Route>
 
         {/*** 2) PORTAL (authenticated‐only) ***/}
 
@@ -81,8 +72,9 @@ export default function App() {
                 element={<r.element/>}
               />
             ))}
+
             {/* default to student/home */}
-            {/* <Route index element={<Navigate to="home" replace />} /> */}
+            <Route index element={<Navigate to="home" replace />} />
           </Route>
 
           {/* TEACHER PORTAL */}
@@ -98,9 +90,18 @@ export default function App() {
                 element={<r.element/>}
               />
             ))}
-            {/* default to teacher/home */}
+
             <Route index element={<Navigate to="home" replace />} />
           </Route>
+
+          {routesConfig.shared.map(r => (
+            <Route
+              key={r.path}
+              path={r.path}
+              element={<r.element/>}
+            />
+          ))}
+
         </Route>
 
         {/*** 3) CATCH-ALL ***/}

@@ -1,16 +1,16 @@
-import StudentHomePage      from './applications/student/pages/Home'
-import EnrolledCoursesPage  from './features/courses/pages/EnrolledCoursesPage'
-import AllCoursesPage       from './features/courses/pages/AllCoursesPage'
-import ExamsPage            from './features/courses/pages/ExamsPage'
-import QuizPage             from './features/ai/pages/QuizPage'
-import TeacherHomePage      from './applications/teacher/pages/Home'
-import TeacherCoursesPage   from './features/courses/pages/TeacherCoursesPage'
-import TeacherVideosPage    from './features/videos/pages/TeacherVideosPage'
-import TeacherPresentationsPage from './features/presentations/pages/TeacherPresentationsPage'
+import StudentHomePage      from './applications/student/pages/StudentHomePage'
+import EnrolledCoursesPage  from './applications/student/pages/EnrolledCoursesPage'
+import AllCoursesPage       from './applications/student/pages/AllCoursesPage'
+import ExamsPage            from './applications/student/pages/ExamsPage'
+import QuizPage             from './applications/student/pages/QuizPage'
+import TeacherHomePage      from './applications/teacher/pages/TeacherHomePage'
+import TeacherCoursesPage   from './applications/teacher/pages/TeacherCoursesPage'
+import TeacherVideosPage    from './applications/teacher/pages/TeacherVideosPage'
+import TeacherPresentationsPage from './applications/teacher/pages/TeacherPresentationsPage'
 import DiagramsPage         from './features/ai/pages/DiagramsPage'
 import ProfilePage          from './features/profiles/pages/ProfilePage'
 import SettingsPage         from './features/profiles/pages/ProfileSettingsPage'
-import { LogoutContainer } from './features/authentication/containers/LogoutContainer'
+import LogoutPage from './features/authentication/pages/LogoutPage'
 
 export const sharedPortalRoutes = [
   {
@@ -22,7 +22,7 @@ export const sharedPortalRoutes = [
   },
   {
     path:    'logout',
-    element: LogoutContainer,
+    element: LogoutPage,
     section: 'OTHER',
     label:   'Logout',
     icon:    'logout.png',
