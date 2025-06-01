@@ -2,7 +2,6 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Card, Form, InputGroup, Button, FormControl } from 'react-bootstrap'
 import PropTypes from 'prop-types'
-import { useState } from 'react'
 
 /**
  * Presentational component for the Chat UI with open/close functionality.
@@ -36,7 +35,7 @@ export function ChatWindow({ className, style, messages, input, onInputChange, o
           onClick={toggleChat}
           className="border-0"
         >
-          {isOpen ? '−' : '+'}
+          {isOpen ? '-' : '+'}
         </Button>
       </Card.Header>
       

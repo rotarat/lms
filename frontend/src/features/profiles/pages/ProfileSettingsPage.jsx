@@ -1,7 +1,5 @@
-import PortalLayout from '../../../layouts/PortalLayout'
+import { ProfileSettingsContainer } from '../containers/ProfileSettingsContainer'
 
 export default function ProfileSettingsPage() {
-  return (
-    <div>Settings</div>
-  )
+  return <ProfileSettingsContainer />
 }

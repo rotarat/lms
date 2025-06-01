@@ -1,4 +1,4 @@
-import { submitDiagram as submit } from '../../../shared/api/ai/diagram';
+import {submitDiagram} from '../../../shared/api/ai'
 
 export const useDiagram = () => {
   const submitDiagram =async (text, imageFile, action) => {
@@ -9,7 +9,7 @@ export const useDiagram = () => {
       formData.append('image', imageFile);
     }
 
-    return await submit(formData)
+    return await submitDiagram(formData)
   }
 
   return { submitDiagram };
