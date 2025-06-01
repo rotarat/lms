@@ -30,12 +30,11 @@ export default function App() {
 
         {/*** 1) PUBLIC (anonymous‐only) ***/}
         <Route element={<RequireAnon><PublicLayout/></RequireAnon>}>
-          {/* auth forms */}
+
           <Route element={<AuthLayout/>}>
             <Route path="login"    element={<LoginPage/>} />
             <Route path="register" element={<RegisterPage/>}/>
           </Route>
-
           {/* landing */}
           <Route index element={<HomePage/>}/>
 
@@ -49,8 +48,7 @@ export default function App() {
             <Route index element={<Resource/>}/>
             <Route path="diagram" element={<DiagramResource/>}/>
           </Route>
-
-          <Route index element={<Navigate to="home" replace />} />
+        
 
         </Route>
 
@@ -107,17 +105,12 @@ export default function App() {
 
             <Route index element={<Navigate to="home" replace />} />
           </Route>
-
-         
-
         </Route>
-
         {/*** 3) CATCH-ALL ***/}
         <Route
           path="*"
           element={<Navigate to="/" replace />}
         />
-
       </Routes>
     </AuthProvider>
   )

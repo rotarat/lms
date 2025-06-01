@@ -10,7 +10,7 @@ export default function Logout() {
     useEffect(() => {
         logout()
         setBusy(false)
-        navigate('/login', { replace: true })
+        navigate('/', { replace: true })
     }, [logout, navigate])
 
     if (!busy) return null

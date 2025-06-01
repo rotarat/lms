@@ -20,7 +20,7 @@ export function LogoutContainer() {
     console.log('👉 LogoutContainer mounted, calling logout()');
     logout()
     setBusy(false)
-    navigate('/home', { replace: true })
+    navigate('/', { replace: true })
   }, [logout, navigate])
 
   if (!busy) return null

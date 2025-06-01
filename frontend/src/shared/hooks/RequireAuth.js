@@ -21,7 +21,7 @@ export function RequireAuth({ children }) {
   if (!tokens || !profile) {
     return (
       <Navigate
-        to="/login"
+        to="/"
         state={{ from: location }}
         replace
       />

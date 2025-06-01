@@ -8,7 +8,7 @@ export default function RoleRedirect() {
   if (loading) return null
 
   // not logged in? bounce you to login
-  if (!profile) return <Navigate to="/login" replace/>
+  if (!profile) return <Navigate to="/" replace/>
 
   // push you to the proper child
   return profile.role === 'student'
