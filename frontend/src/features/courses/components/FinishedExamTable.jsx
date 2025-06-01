@@ -10,11 +10,11 @@ const getVariant = grade => {
 
 export function FinishedExamTable({ exams }) {
   return (
-    <Table hover>
-      <thead>
+    <Table >
+      <thead >
         <tr>
           <th>Course</th>
-          <th className="text-end">Grade</th>
+          <th >Grade</th>
         </tr>
       </thead>
       <tbody>

@@ -5,21 +5,25 @@ import { routesConfig } from '../../routes'
 
 export default function Menu({ className = '' }) {
   const { profile } = useAuth()
-  const role        = profile?.role   // "student" or "teacher"
-  const routes      = routesConfig[role] || []
+  const role = profile?.role   // "student" or "teacher"
+  const roleRoutes = routesConfig[role] || []
+  const sharedRoutes = routesConfig.shared || []
 
-  // group routes by their section header
-  const sections = Array.from(new Set(routes.map(r => r.section)))
+  // Combine role-specific routes with shared routes
+  const allRoutes = [...roleRoutes, ...sharedRoutes]
+
+  // Group routes by their section header
+  const sections = Array.from(new Set(allRoutes.map(r => r.section)))
 
   return (
     <nav className={`mt-4 nav flex-column small ${className}`}>
       {sections.map(section => (
-        <div key={section} className="mb-4 ps-0">
+        <div key={section} className="mb-2 ps-0">
           <div className="d-none d-lg-block text-uppercase text-body-secondary fw-light ps-0 mb-2">
             {section}
           </div>
 
-          {routes
+          {allRoutes
             .filter(r => r.section === section)
             .map(r => (
               <Link

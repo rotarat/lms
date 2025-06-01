@@ -2,7 +2,6 @@ import PortalLayout from '../../../layouts/PortalLayout'
 
 export default function ProfilePage() {
   return (
-    <PortalLayout>
-    </PortalLayout>
+    <div>PRofile</div>
   )
 }
