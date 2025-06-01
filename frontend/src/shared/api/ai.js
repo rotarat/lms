@@ -37,16 +37,16 @@ export function getQuiz({ numQuestions, category, difficulty }) {
     .then((resp) => resp.data);
 }
 
-export const submitDiagram = async (text, imageFile) => {
-  const formData = new FormData()
-  formData.append('text', text)
-  if (imageFile) {
-    formData.append('image', imageFile)
-  }
-
+export const submitDiagram = async (formData) => {
   try {
-    const response = await apiClient.post('/api/ai/diagram/', formData)
-    return response.data  // Expected: { imageUrl, explanation }
+    const response = await apiClient.post('/api/ai/diagram/', 
+      formData, 
+      {headers: { 'Content-Type': 'multipart/form-data' }}
+    )
+    // response.data is:
+    //   • { imageUrl, explanation }  when action === 'diagram'
+    //   • { explanation }            when action === 'explanation'
+    return response.data
   } catch (error) {
     console.error("Failed to submit diagram:", error)
     throw error

@@ -1,4 +1,4 @@
-const DiagramViewer = ({ imageUrl, onDownload }) => {
+const DiagramViewer = ({ imageUrl }) => {
   if (!imageUrl) return null;
 
   return (
@@ -10,7 +10,9 @@ const DiagramViewer = ({ imageUrl, onDownload }) => {
         style={{ maxHeight: '400px' }}
       />
       <div className="mt-2">
-        <button className="btn btn-success" onClick={onDownload}>Download Diagram</button>
+        <a href={imageUrl} download>
+          <button className="btn btn-success">Download Diagram</button>
+        </a>
       </div>
     </div>
   );

@@ -5,7 +5,7 @@ const DiagramExplanation = ({ explanation }) => {
     <div className="card mt-3">
       <div className="card-header">Explanation</div>
       <div className="card-body">
-        <p>{explanation}</p>
+        <p style={{ whiteSpace: 'pre-wrap' }}>{explanation}</p>
       </div>
     </div>
   );
