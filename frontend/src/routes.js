@@ -21,13 +21,6 @@ export const sharedPortalRoutes = [
     icon:    'diagrams.png',
   },
   {
-    path:    'logout',
-    element: LogoutPage,
-    section: 'OTHER',
-    label:   'Logout',
-    icon:    'logout.png',
-  },
-  {
     path:    'profile',
     element: ProfilePage,
     section: 'OTHER',
@@ -40,6 +33,13 @@ export const sharedPortalRoutes = [
     section: 'OTHER',
     label:   'Settings',
     icon:    'setting.png'
+  },
+  {
+    path:    'logout',
+    element: LogoutPage,
+    section: 'OTHER',
+    label:   'Logout',
+    icon:    'logout.png',
   },
 ]
 

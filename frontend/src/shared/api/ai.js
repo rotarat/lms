@@ -37,7 +37,7 @@ export function getQuiz({ numQuestions, category, difficulty }) {
     .then((resp) => resp.data);
 }
 
-export const submitDiagram = async (formData) => {
+export async function submitDiagram(formData) {
   try {
     const response = await apiClient.post('/api/ai/diagram/', 
       formData, 
@@ -51,24 +51,4 @@ export const submitDiagram = async (formData) => {
     console.error("Failed to submit diagram:", error)
     throw error
   }
-};
-
-export const downloadDiagram = async (name) => {
-  try {
-    const response = await apiClient.get(`/api/ai/diagrams/${name}`, {
-      responseType: 'blob',
-    })
-
-    const blob = new Blob([response.data])
-    const url = window.URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.setAttribute('download', name)
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
-  } catch (error) {
-    console.error("Failed to download diagram:", error)
-    throw error
-  }
-};
+}
