@@ -39,7 +39,7 @@ export function getQuiz({ numQuestions, category, difficulty }) {
 
 export async function submitDiagram(formData) {
   try {
-    const response = await apiClient.post('/api/ai/diagram/', 
+    const response = await apiClient.post('/ai/diagrams/', 
       formData, 
       {headers: { 'Content-Type': 'multipart/form-data' }}
     )

@@ -57,7 +57,7 @@ export default function App() {
         <Route path="portal/*" element={<RequireAuth><PortalLayout/></RequireAuth>}>
           {/* /portal → redirect to /portal/{role} */}
           <Route index element={<RoleRedirect />} />
-         
+        
           {/* STUDENT PORTAL */}
           <Route
             path="student/*"
@@ -70,7 +70,7 @@ export default function App() {
                 element={<r.element/>}
               />
             ))}
-             {routesConfig.shared.map(r => (
+            {routesConfig.shared.map(r => (
             <Route
               key={r.path}
               path={r.path}
@@ -95,7 +95,7 @@ export default function App() {
                 element={<r.element/>}
               />
             ))}
-             {routesConfig.shared.map(r => (
+            {routesConfig.shared.map(r => (
             <Route
               key={r.path}
               path={r.path}

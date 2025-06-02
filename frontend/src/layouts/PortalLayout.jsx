@@ -11,7 +11,7 @@ export default function PortalLayout() {
   const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <div className="container-fluid vh-100 px-0 overflow-hidden">
+    <div className="container-fluid vh-100 px-0">
       <div className="row gx-0 h-100">
         {/* SIDEBAR */}
         <aside
