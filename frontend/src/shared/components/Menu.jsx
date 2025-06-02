@@ -24,7 +24,7 @@ export default function Menu({ className = '' }) {
           </div>
 
           {allRoutes
-            .filter(r => r.section === section)
+            .filter(r => r.section === section && !r.hideInMenu)
             .map(r => (
               <Link
                 key={r.path}

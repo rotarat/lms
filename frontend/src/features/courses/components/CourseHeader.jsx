@@ -6,7 +6,7 @@ export function CourseHeader({ course }) {
     <div className="row mb-4">
       <div className="col-md-4">
         <img
-          src={course.featured_image}
+          src={course.featured_image_url}
           className="img-fluid rounded"
           alt={course.title}
         />

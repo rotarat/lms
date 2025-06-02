@@ -10,7 +10,10 @@ import TeacherPresentationsPage from './applications/teacher/pages/TeacherPresen
 import DiagramsPage         from './features/ai/pages/DiagramsPage'
 import ProfilePage          from './features/profiles/pages/ProfilePage'
 import SettingsPage         from './features/profiles/pages/ProfileSettingsPage'
-import LogoutPage from './features/authentication/pages/LogoutPage'
+import CourseDetailPage     from './features/courses/pages/CourseDetailPage'
+import PresentationDetailPage from './features/presentations/pages/PresentationDetailPage'
+import VideoDetailPage      from './features/videos/pages/VideoDetailPage'
+import LogoutPage           from './features/authentication/pages/LogoutPage'
 
 export const sharedPortalRoutes = [
   {
@@ -19,20 +22,23 @@ export const sharedPortalRoutes = [
     section: 'OTHER',
     label:   'Diagrams',
     icon:    'diagrams.png',
+    hideInMenu: false,
   },
   {
     path:    'profile',
     element: ProfilePage,
     section: 'OTHER',
     label:   'Profile',
-    icon:    'profile.png'
+    icon:    'profile.png',
+    hideInMenu: false,
   },
   {
     path:    'settings',
     element: SettingsPage,
     section: 'OTHER',
     label:   'Settings',
-    icon:    'setting.png'
+    icon:    'setting.png',
+    hideInMenu: false,
   },
   {
     path:    'logout',
@@ -40,6 +46,31 @@ export const sharedPortalRoutes = [
     section: 'OTHER',
     label:   'Logout',
     icon:    'logout.png',
+    hideInMenu: false,
+  },
+  {
+    path:    'courses/:courseId',
+    element: CourseDetailPage,
+    section: null,
+    label:   null,
+    icon:    null,
+    hideInMenu: true,
+  },
+  {
+    path:    'presentations/:presentationId',
+    element: PresentationDetailPage,
+    section: null,
+    label:   null,
+    icon:    null,
+    hideInMenu: true,
+  },
+  {
+    path:    'videos/:videoId',
+    element: VideoDetailPage,
+    section: null,
+    label:   null,
+    icon:    null,
+    hideInMenu: true,
   },
 ]
 
@@ -49,35 +80,40 @@ export const studentRoutes = [
     element: StudentHomePage,
     section: 'MENU',
     label:   'Home',
-    icon:    'home.png'
+    icon:    'home.png',
+    hideInMenu: false,
   },
   {
     path:    'courses/enrolled',
     element: EnrolledCoursesPage,
     section: 'MENU',
     label:   'Enrolled courses',
-    icon:    'enrolled_courses.png'
+    icon:    'enrolled_courses.png',
+    hideInMenu: false,
   },
   {
     path:    'exams',
     element: ExamsPage,
     section: 'MENU',
     label:   'Exams',
-    icon:    'exam.png'
+    icon:    'exam.png',
+    hideInMenu: false,
   },
   {
     path:    'courses',
     element: AllCoursesPage,
     section: 'MENU',
     label:   'Browse courses',
-    icon:    'browse_courses.png'
+    icon:    'browse_courses.png',
+    hideInMenu: false,
   },
   {
     path:    'quiz',
     element: QuizPage,
     section: 'MENU',
     label:   'Feeling brave?',
-    icon:    'feeling_brave.png'
+    icon:    'feeling_brave.png',
+    hideInMenu: false,
   },
 ]
 
@@ -87,28 +123,32 @@ export const teacherRoutes = [
     element: TeacherHomePage,
     section: 'MENU',
     label:   'Home',
-    icon:    'home.png'
+    icon:    'home.png',
+    hideInMenu: false,
   },
   {
     path:    'courses',
     element: TeacherCoursesPage,
     section: 'MENU',
     label:   'My Courses',
-    icon:    'enrolled_courses.png'
+    icon:    'enrolled_courses.png',
+    hideInMenu: false,
   },
   {
     path:    'videos',
     element: TeacherVideosPage,
     section: 'MENU',
     label:   'My Videos',
-    icon:    'enrolled_courses.png'
+    icon:    'enrolled_courses.png',
+    hideInMenu: false,
   },
   {
     path:    'presentations',
     element: TeacherPresentationsPage,
     section: 'MENU',
     label:   'My Presentations',
-    icon:    'enrolled_courses.png'
+    icon:    'enrolled_courses.png',
+    hideInMenu: false,
   },
 ]
 
