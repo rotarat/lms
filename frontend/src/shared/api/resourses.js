@@ -11,6 +11,8 @@ export const examsApi = createResourceApi('exams')
 
 export const studentExamsApi = createResourceApi('student/exams')
 
+export const questionsApi = createResourceApi('questions')
+
 export const profilesApi = createResourceApi('profiles')
 
 

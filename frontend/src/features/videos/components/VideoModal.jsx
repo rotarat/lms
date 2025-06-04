@@ -25,12 +25,6 @@ export function VideoModal({ video, show, onClose }) {
             allowFullScreen
           />
         </div>
-        <h6>Key Points</h6>
-        <ul>
-          {video.key_points.map((pt, i) => (
-            <li key={i}>{pt}</li>
-          ))}
-        </ul>
       </Modal.Body>
     </Modal>
   )
@@ -40,7 +34,6 @@ VideoModal.propTypes = {
   video: PropTypes.shape({
     title:      PropTypes.string.isRequired,
     link:       PropTypes.string.isRequired,
-    key_points: PropTypes.arrayOf(PropTypes.string).isRequired,
   }),
   show:  PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,

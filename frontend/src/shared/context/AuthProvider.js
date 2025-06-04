@@ -7,7 +7,7 @@ import {
   
   import * as storage     from '../../services/storage'
   import * as authApi     from '../api/auth'
-  import * as profileApi  from '../api/profile'
+  import { profilesApi } from '../api/resourses'
   import { registerLogoutHandler } from '../api/apiClient'
   
   export const AuthContext = createContext({
@@ -34,7 +34,7 @@ import {
       storage.saveTokens(newTokens)               // ← persist here
       setTokens(newTokens)
   
-      const newProfile = await profileApi.fetchProfile(username)
+      const newProfile = await profilesApi.get(username)
       storage.saveProfile(newProfile)
       setProfile(newProfile)
   
@@ -56,7 +56,7 @@ import {
   
     // 4) updateProfile: patch + overwrite in storage+state
     const updateProfile = useCallback(async (username, formData) => {
-      const updated = await profileApi.updateProfile(username, formData)
+      const updated = await profilesApi.update(username, formData)
       storage.saveProfile(updated)
       setProfile(updated)
       return updated
