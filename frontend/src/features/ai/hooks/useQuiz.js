@@ -1,8 +1,12 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
-import { coursesApi } from '../../../shared/api/resourses'
-import { getQuiz }   from '../../../shared/api/ai'
+// src/features/quiz/useQuiz.js
 
-// Fisher–Yates shuffle
+import { useState, useEffect, useRef, useMemo } from 'react'
+import { coursesApi, quizApi, startAdaptiveQuiz } from '../../../shared/api/resourses'
+import { apiClient } from '../../../shared/api/apiClient'
+
+/**
+ * Fisher–Yates shuffle to randomize answer order
+ */
 function shuffleArray(arr) {
   const a = [...arr]
   for (let i = a.length - 1; i > 0; i--) {
@@ -13,86 +17,64 @@ function shuffleArray(arr) {
 }
 
 export function useQuiz() {
-  // SETTINGS
+  // ───────────────────────────────────────────────────────────────────────────
+  // SETTINGS STATE
+  // ───────────────────────────────────────────────────────────────────────────
   const [numQuestions, setNumQuestions] = useState(5)
-  const [category,    setCategory]     = useState('')
-  const [difficulty,  setDifficulty]   = useState('easy')
-  const [timeLimit,   setTimeLimit]    = useState(15)
+  const [category, setCategory] = useState('')        // holds course_id
+  const [difficulty, setDifficulty] = useState('Medium')
+  const [timeLimit, setTimeLimit] = useState(30)      // seconds per question
+  const [coursesList, setCoursesList] = useState([])
 
+  // ───────────────────────────────────────────────────────────────────────────
   // QUIZ STATE
-  const [phase,       setPhase]        = useState('settings')
-  const [questions,   setQuestions]    = useState([])
-  const [currentIdx,  setCurrentIdx]   = useState(0)
-  const [score,       setScore]        = useState(0)
-  const [selectedAns, setSelectedAns]  = useState(null)
-  const [showExp,     setShowExp]      = useState(false)
-  const [timeRem,     setTimeRem]      = useState(timeLimit)
+  // ───────────────────────────────────────────────────────────────────────────
+  const [phase, setPhase] = useState('settings')
+  const [sessionId, setSessionId] = useState(null)     // adaptive session UUID
+  const [questions, setQuestions] = useState([])       // array of MCQ objects
+  const [currentIdx, setCurrentIdx] = useState(0)      // index into `questions`
+  const [score, setScore] = useState(0)
+  const [selectedAns, setSelectedAns] = useState(null) // what student clicked
+  const [showExp, setShowExp] = useState(false)        // reveal rationale/explanation
+  const [reflectionPrompt, setReflectionPrompt] = useState('')
 
-  // dropdown data
-  const [coursesList, setCoursesList]  = useState([])
+  // ───────────────────────────────────────────────────────────────────────────
+  // NEW: Hold the list of saved reflections after quiz finishes
+  // ───────────────────────────────────────────────────────────────────────────
+  const [reflectionsList, setReflectionsList] = useState([])
 
-  // timers & progress
-  const timerRef    = useRef(null)
+  // ───────────────────────────────────────────────────────────────────────────
+  // TIMER STATE
+  // ───────────────────────────────────────────────────────────────────────────
+  const [timeRem, setTimeRem] = useState(timeLimit)
+  const timerRef = useRef(null)
   const progressRef = useRef(null)
 
-  // load categories (courses)
+  // ───────────────────────────────────────────────────────────────────────────
+  // Fetch list of courses for “category” dropdown
+  // ───────────────────────────────────────────────────────────────────────────
   useEffect(() => {
     coursesApi
-      .list()
-      .then(arr => {
-        setCoursesList(arr)
-        if (arr.length) setCategory(arr[0].id.toString())
+      .listAll()
+      .then(courseArray => {
+        setCoursesList(courseArray)
+      })
+      .catch(() => {
+        setCoursesList([])
       })
   }, [])
 
-  // cleanup
-  useEffect(() => () => clearInterval(timerRef.current), [])
-
-  // shuffled answers for current question
-  const answers = useMemo(() => {
-    if (!questions[currentIdx]) return []
-    return shuffleArray([
-      ...questions[currentIdx].incorrect_answers,
-      questions[currentIdx].correct_answer
-    ])
-  }, [questions, currentIdx])
-
-  // Start or retake
-  const startQuiz = async e => {
-    e?.preventDefault()
-    if (questions.length === 0) {
-      setPhase('loading')
-      try {
-        const { questions: qs } = await getQuiz({
-          numQuestions,
-          category,
-          difficulty
-        })
-        setQuestions(qs)
-        initRun(qs)
-      } catch {
-        alert('Failed to start quiz.')
-        setPhase('settings')
-      }
-    } else {
-      initRun(questions)
-    }
-  }
-
-  const initRun = qs => {
-    setCurrentIdx(0)
-    setScore(0)
-    setSelectedAns(null)
-    setShowExp(false)
+  // Whenever timeLimit changes, reset timeRem
+  useEffect(() => {
     setTimeRem(timeLimit)
-    setPhase('running')
-    runTimer()
-  }
+  }, [timeLimit])
 
+  // ───────────────────────────────────────────────────────────────────────────
+  // TIMER LOGIC
+  // ───────────────────────────────────────────────────────────────────────────
   const runTimer = () => {
-    clearInterval(timerRef.current)
+    if (timerRef.current) clearInterval(timerRef.current)
     setTimeRem(timeLimit)
-    if (progressRef.current) progressRef.current.style.width = '100%'
     timerRef.current = setInterval(() => {
       setTimeRem(t => {
         if (t <= 1) {
@@ -100,43 +82,218 @@ export function useQuiz() {
           setShowExp(true)
           return 0
         }
-        const nxt = t - 1
-        if (progressRef.current) {
-          progressRef.current.style.width = `${(nxt / timeLimit) * 100}%`
-        }
-        return nxt
+        return t - 1
       })
     }, 1000)
   }
 
+  // Clean up timer on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current)
+    }
+  }, [])
+
+  // Whenever timeRem changes, update the progress bar
+  useEffect(() => {
+    if (progressRef.current) {
+      const pct = ((timeRem / timeLimit) * 100).toFixed(2) + '%'
+      progressRef.current.style.width = pct
+    }
+  }, [timeRem, timeLimit])
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // Derived: current question object and shuffled answer options
+  // ───────────────────────────────────────────────────────────────────────────
+  const currentQuestion = useMemo(() => {
+    return questions[currentIdx] || null
+  }, [questions, currentIdx])
+
+  const answerOptions = useMemo(() => {
+    if (!currentQuestion) return []
+    const distractors = Array.isArray(currentQuestion.distractors_with_rationale)
+      ? currentQuestion.distractors_with_rationale.map(d => d.distractor)
+      : []
+    const all = [currentQuestion.correct_answer || '', ...distractors]
+    return shuffleArray(all)
+  }, [currentQuestion])
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // ACTION: Start Quiz (using startAdaptiveQuiz)
+  // ───────────────────────────────────────────────────────────────────────────
+  const startQuiz = async () => {
+    if (!category) {
+      alert('Please select a course first.')
+      return
+    }
+    setPhase('loading')
+
+    try {
+      const resp = await startAdaptiveQuiz({
+        course_id: category,
+        difficulty,
+        total: numQuestions
+      })
+
+      const { session_id, question } = resp
+      const firstQuestionObj = Array.isArray(question)
+        ? question[0]
+        : question
+
+      if (!session_id || !firstQuestionObj) {
+        alert('Server did not return a valid question. Check console.')
+        setPhase('settings')
+        return
+      }
+
+      setSessionId(session_id)
+      setQuestions([firstQuestionObj])
+      initRun([firstQuestionObj])
+    } catch {
+      alert('Failed to start quiz. Please try again.')
+      setPhase('settings')
+    }
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // Helper: Initialize “running” state with the first question
+  // ───────────────────────────────────────────────────────────────────────────
+  const initRun = initialQs => {
+    setQuestions(initialQs)
+    setCurrentIdx(0)
+    setScore(0)
+    setSelectedAns(null)
+    setShowExp(false)
+    setReflectionPrompt('')
+    setTimeRem(timeLimit)
+    setPhase('running')
+    runTimer()
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // ACTION: Handle Answer Selection
+  // ───────────────────────────────────────────────────────────────────────────
   const handleAnswer = ans => {
     if (selectedAns || timeRem === 0) return
     clearInterval(timerRef.current)
     setSelectedAns(ans)
     setShowExp(true)
-    if (ans === questions[currentIdx].correct_answer) {
+    const isCorrect = ans === (currentQuestion?.correct_answer || '')
+    if (isCorrect) {
       setScore(s => s + 1)
     }
   }
 
-  const nextQ = () => {
-    if (currentIdx + 1 < questions.length) {
+  // ───────────────────────────────────────────────────────────────────────────
+  // ACTION: Next Question (POST to quizApi.create)
+  // ───────────────────────────────────────────────────────────────────────────
+  const nextQ = async () => {
+    if (!currentQuestion) return
+
+    const lastQ = currentQuestion
+    const wasCorrect = selectedAns === lastQ.correct_answer
+
+    const payload = {
+      session_id: sessionId,
+      was_correct: wasCorrect,
+      question: lastQ.question,
+      submitted_answer: selectedAns || '',
+      correct_answer: lastQ.correct_answer,
+      distractors_with_rationale: Array.isArray(lastQ.distractors_with_rationale)
+        ? lastQ.distractors_with_rationale
+        : []
+    }
+
+    try {
+      const resp = await quizApi.create(payload)
+
+      if (resp.finished) {
+        setPhase('finished')
+        clearInterval(timerRef.current)
+        return
+      }
+
+      const nextQuestionObj = Array.isArray(resp.question)
+        ? resp.question[0]
+        : resp.question
+
+      if (!nextQuestionObj) {
+        alert('Server did not return a new question. Check console.')
+        setPhase('finished')
+        return
+      }
+
+      if (!wasCorrect && resp.reflection_prompt) {
+        setReflectionPrompt(resp.reflection_prompt)
+      } else {
+        setReflectionPrompt('')
+      }
+
+      setQuestions(prev => [...prev, nextQuestionObj])
       setCurrentIdx(i => i + 1)
       setSelectedAns(null)
       setShowExp(false)
+      setTimeRem(timeLimit)
       runTimer()
-    } else {
-      setPhase('finished')
+    } catch {
+      alert('Something went wrong getting the next question.')
     }
   }
 
+  // ───────────────────────────────────────────────────────────────────────────
+  // ACTION: Reset to Settings
+  // ───────────────────────────────────────────────────────────────────────────
   const resetToSettings = () => {
+    if (timerRef.current) clearInterval(timerRef.current)
+    setSessionId(null)
     setQuestions([])
+    setCurrentIdx(0)
+    setScore(0)
+    setSelectedAns(null)
+    setShowExp(false)
+    setReflectionPrompt('')
     setPhase('settings')
   }
 
+  // ───────────────────────────────────────────────────────────────────────────
+  // NEW: Fetch & Poll reflections until every item has a non‐empty prompt
+  // ───────────────────────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (phase !== 'finished') return
+
+    let attempts = 0
+    const maxAttempts = 10
+    const delayMs = 300
+
+    async function fetchReflections() {
+      try {
+        const resp = await apiClient.get('/ai/quiz/reflections/', {
+          params: { session_id: sessionId }
+        })
+        let data = resp.data
+
+        // Check if any item has an empty reflection_prompt
+        const pending = data.filter(item => !item.reflection_prompt)
+
+        if (pending.length > 0 && attempts < maxAttempts) {
+          attempts += 1
+          setTimeout(fetchReflections, delayMs)
+        }
+
+        setReflectionsList(data)
+      } catch {
+        setReflectionsList([])
+      }
+    }
+
+    fetchReflections()
+  }, [phase, sessionId])
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // Return everything the UI needs
+  // ───────────────────────────────────────────────────────────────────────────
   return {
-    // settings
+    // Settings
     numQuestions,
     setNumQuestions,
     category,
@@ -147,18 +304,23 @@ export function useQuiz() {
     setTimeLimit,
     coursesList,
 
-    // quiz state
+    // Quiz state
     phase,
     questions,
     currentIdx,
+    currentQuestion,
+    answerOptions,
     score,
     selectedAns,
     showExp,
+    reflectionPrompt,
     timeRem,
-    answers,
     progressRef,
 
-    // actions
+    // NEW: fetched list of reflections
+    reflectionsList,
+
+    // Actions
     startQuiz,
     handleAnswer,
     nextQ,

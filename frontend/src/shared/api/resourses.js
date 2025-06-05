@@ -15,6 +15,8 @@ export const questionsApi = createResourceApi('questions')
 
 export const profilesApi = createResourceApi('profiles')
 
+export const quizApi = createResourceApi('ai/quiz')
+
 
 /**
  * POST /api/profiles/password/
@@ -24,5 +26,20 @@ export const profilesApi = createResourceApi('profiles')
 export function changePassword(payload) {
   return apiClient
     .post('/profiles/password/', payload)
+    .then(resp => resp.data)
+}
+
+/**
+ * GET /api/ai/quiz/?course_id=<id>&difficulty=<level>&total=<n>
+ * Starts a new adaptive quiz session. Returns { session_id, question }.
+ *
+ * @param {{ course_id: string, difficulty: string, total: number }}
+ * @returns {Promise<{ session_id: string, question: object }>}
+ */
+export function startAdaptiveQuiz({ course_id, difficulty, total }) {
+  return apiClient
+    .get('/ai/quiz/', {
+      params: { course_id, difficulty, total }
+    })
     .then(resp => resp.data)
 }

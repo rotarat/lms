@@ -8,11 +8,13 @@ export function PopupWindow({ show, children }) {
       backdrop="static"
       keyboard={false}
       centered
-      size="lg"
+      size="xl"
       contentClassName="overflow-hidden"
       dialogClassName="blur-backdrop"
     >
-      {children}
+      <div className="modal-body" style={{ padding: '33px' }}>
+        {children}
+      </div>
     </Modal>
   )
 }
