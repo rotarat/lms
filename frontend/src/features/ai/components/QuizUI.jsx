@@ -159,8 +159,8 @@ export function QuizUI({
           so px‐2 ~ 0.5rem actually gives a little more breathing room—feel free to
           swap px‐1 if you want exactly ~5px.
         */}
-        <Row className="mb-2 ">
-          <Col className="">
+        <Row className="mb-2">
+          <Col>
             <strong>Question {currentIdx + 1} of {numQuestions}</strong>
           </Col>
           <Col>

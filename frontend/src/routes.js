@@ -3,16 +3,23 @@ import EnrolledCoursesPage  from './applications/student/pages/EnrolledCoursesPa
 import AllCoursesPage       from './applications/student/pages/AllCoursesPage'
 import ExamsPage            from './applications/student/pages/ExamsPage'
 import QuizPage             from './applications/student/pages/QuizPage'
+import StudentProjectPage   from './applications/student/pages/StudentProjectPage'
+import StudentProjectCreatePage   from './applications/student/pages/StudentProjectCreatePage'
 import TeacherHomePage      from './applications/teacher/pages/TeacherHomePage'
 import TeacherCoursesPage   from './applications/teacher/pages/TeacherCoursesPage'
 import TeacherVideosPage    from './applications/teacher/pages/TeacherVideosPage'
 import TeacherPresentationsPage from './applications/teacher/pages/TeacherPresentationsPage'
+import TeacherProjectsPage  from './applications/teacher/pages/TeacherProjectsPage'
 import DiagramsPage         from './features/ai/pages/DiagramsPage'
 import ProfilePage          from './features/profiles/pages/ProfilePage'
 import SettingsPage         from './features/profiles/pages/ProfileSettingsPage'
 import CourseDetailPage     from './features/courses/pages/CourseDetailPage'
+import CourseFormPage       from './features/courses/pages/CourseFormPage'
 import PresentationDetailPage from './features/presentations/pages/PresentationDetailPage'
+import PresentationFormPage from './features/presentations/pages/PresentationFormPage'
 import VideoDetailPage      from './features/videos/pages/VideoDetailPage'
+import VideoFormPage        from './features/videos/pages/VideoFormPage'
+import ProjectDetailsPage   from './features/projects/pages/ProjectDetailsPage'
 import LogoutPage           from './features/authentication/pages/LogoutPage'
 
 export const sharedPortalRoutes = [
@@ -72,6 +79,13 @@ export const sharedPortalRoutes = [
     icon:    null,
     hideInMenu: true,
   },
+  {
+    path:    'projects/:projectId',
+    element: ProjectDetailsPage,
+    section: null,
+    label:   null,
+    hideInMenu: true,
+  },
 ]
 
 export const studentRoutes = [
@@ -115,6 +129,23 @@ export const studentRoutes = [
     icon:    'feeling_brave.png',
     hideInMenu: false,
   },
+  {
+    path:    'projects',
+    element: StudentProjectPage,
+    section: 'MENU',
+    label:   'Projects',
+    // TODO: Add icon
+    icon:    'feeling_brave.png',
+    hideInMenu: false,
+  },
+  {
+    path:       'projects/create',
+    element:    StudentProjectCreatePage,
+    section:    null,
+    label:      null,
+    icon:       null,
+    hideInMenu: true,
+  },
 ]
 
 export const teacherRoutes = [
@@ -135,6 +166,22 @@ export const teacherRoutes = [
     hideInMenu: false,
   },
   {
+    path:    'courses/create',
+    element: CourseFormPage,
+    section: null,
+    label:   null,
+    icon:    null,
+    hideInMenu: true,
+  },
+  {
+    path:    'courses/:courseId/edit',
+    element: CourseFormPage,
+    section: null,
+    label:   null,
+    icon:    null,
+    hideInMenu: true,
+  },
+  {
     path:    'videos',
     element: TeacherVideosPage,
     section: 'MENU',
@@ -143,12 +190,52 @@ export const teacherRoutes = [
     hideInMenu: false,
   },
   {
+    path:    'videos/create',
+    element: VideoFormPage,
+    section: null,
+    label:   null,
+    icon:    null,
+    hideInMenu: true,
+  },
+  {
+    path:    'videos/:videoId/edit',
+    element: VideoFormPage,
+    section: null,
+    label:   null,
+    icon:    null,
+    hideInMenu: true,
+  },
+  {
     path:    'presentations',
     element: TeacherPresentationsPage,
     section: 'MENU',
     label:   'My Presentations',
     icon:    'enrolled_courses.png',
     hideInMenu: false,
+  },
+  {
+    path:    'presentations/create',
+    element: PresentationFormPage,
+    section: null,
+    label:   null,
+    icon:    null,
+    hideInMenu: true,
+  },
+  {
+    path:    'presentations/:presentationId/edit',
+    element: PresentationFormPage,
+    section: null,
+    label:   null,
+    icon:    null,
+    hideInMenu: true,
+  },
+  {
+    path:    'courses/:courseId/projects',
+    element: TeacherProjectsPage,
+    section: null,
+    label:   null,
+    icon:    null,
+    hideInMenu: true,
   },
 ]
 

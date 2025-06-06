@@ -1,11 +1,10 @@
 import { useCourseDetail } from '../hooks/useCourseDetail'
-import { CourseHeader }    from '../components/CourseHeader'
-import { VideoList }       from '../../videos/components/VideoList'
+import { CourseHeader }     from '../components/CourseHeader'
+import { VideoList }        from '../../videos/components/VideoList'
 import { PresentationList } from '../../presentations/components/PresentationList'
-import { Button }          from '../../../shared/components/Button'
+import { Button }           from '../../../shared/components/Button'
 
 export default function CourseDetailPage({ courseId, onClose }) {
-  // if courseId comes via prop (in popup) or from URL
   const hook = useCourseDetail()
   const { course, videos, presentations, loading, error } = hook
 
@@ -22,6 +21,25 @@ export default function CourseDetailPage({ courseId, onClose }) {
       )}
 
       <CourseHeader course={course} />
+
+      {course.audio ? (
+        <div className="mb-4">
+          <h5>Automated Audio Lecture</h5>
+          <audio
+            controls
+            style={{ width: '100%' }}
+            src={course.audio}
+          >
+            Вашият браузър не поддържа елемента <code>audio</code>.
+          </audio>
+        </div>
+      ) : (
+        // optional: you could show “No audio yet”
+        <div className="mb-4 text-muted">
+          <em>No audio lecture available.</em>
+        </div>
+      )}
+
       <VideoList videos={videos} />
       <PresentationList presentations={presentations} />
     </>

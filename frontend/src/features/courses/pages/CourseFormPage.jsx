@@ -1,4 +1,4 @@
-import { CourseFormContainer } from '../containers/CourseFormContainer'
+import CourseFormContainer from '../containers/CourseFormContainer'
 
 export default function CourseFormPage() {
   return (

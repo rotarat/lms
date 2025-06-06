@@ -40,7 +40,7 @@ export function UserPresentationsUI({
                     size="sm"
                     variant="info"
                     className="me-2"
-                    onClick={() => onView(p.title, p.course)}
+                    onClick={() => onView(p.id)}
                   >
                     View
                   </Button>

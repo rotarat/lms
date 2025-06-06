@@ -17,6 +17,8 @@ export const profilesApi = createResourceApi('profiles')
 
 export const quizApi = createResourceApi('ai/quiz')
 
+export const projectsApi = createResourceApi('projects')
+
 
 /**
  * POST /api/profiles/password/
@@ -42,4 +44,11 @@ export function startAdaptiveQuiz({ course_id, difficulty, total }) {
       params: { course_id, difficulty, total }
     })
     .then(resp => resp.data)
+}
+
+export async function generateAudio(courseId) {
+    const response = await apiClient.post(
+      `/courses/${courseId}/generate-audio/`
+    )
+    return response.data
 }

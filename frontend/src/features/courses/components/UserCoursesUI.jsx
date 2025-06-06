@@ -6,9 +6,11 @@ export function UserCoursesUI({
   loading,
   error,
   onView,
+  onProjects,
   onEdit,
   onDelete,
-  onAddNew
+  onGenerateAudio,
+  onAddNew,
 }) {
   if (loading) return <p>Loading your courses…</p>
   if (error)   return <div className="alert alert-danger">{JSON.stringify(error)}</div>
@@ -27,7 +29,7 @@ export function UserCoursesUI({
           <thead>
             <tr>
               <th>Name</th>
-              <th style={{ width: 150 }}>Actions</th>
+              <th style={{ width: 300 }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -43,6 +45,25 @@ export function UserCoursesUI({
                   >
                     View
                   </Button>
+
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="me-2"
+                    onClick={() => onProjects(c.id)}
+                  >
+                    Projects
+                  </Button>
+
+                  <Button
+                    size="sm"
+                    variant="warning"
+                    className="me-2"
+                    onClick={() => onGenerateAudio(c.id)}
+                  >
+                    Create audio lecture
+                  </Button>
+
                   <Button
                     size="sm"
                     variant="secondary"
@@ -51,6 +72,7 @@ export function UserCoursesUI({
                   >
                     Edit
                   </Button>
+
                   <Button
                     size="sm"
                     variant="danger"
@@ -73,11 +95,13 @@ export function UserCoursesUI({
 }
 
 UserCoursesUI.propTypes = {
-  courses:  PropTypes.array.isRequired,
-  loading:  PropTypes.bool.isRequired,
-  error:    PropTypes.any,
-  onView:   PropTypes.func.isRequired,
-  onEdit:   PropTypes.func.isRequired,
-  onDelete: PropTypes.func.isRequired,
-  onAddNew: PropTypes.func.isRequired,
+  courses:        PropTypes.array.isRequired,
+  loading:        PropTypes.bool.isRequired,
+  error:          PropTypes.any,
+  onView:         PropTypes.func.isRequired,
+  onProjects:     PropTypes.func.isRequired,
+  onEdit:         PropTypes.func.isRequired,
+  onDelete:       PropTypes.func.isRequired,
+  onGenerateAudio: PropTypes.func.isRequired,
+  onAddNew:       PropTypes.func.isRequired,
 }
