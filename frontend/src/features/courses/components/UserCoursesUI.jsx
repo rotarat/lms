@@ -7,6 +7,8 @@ export function UserCoursesUI({
   error,
   onView,
   onProjects,
+  onCreateExam,
+  onExamVIew,
   onEdit,
   onDelete,
   onGenerateAudio,
@@ -57,6 +59,24 @@ export function UserCoursesUI({
 
                   <Button
                     size="sm"
+                    variant="btn btn-sm btn-outline-primary"
+                    className="me-2"
+                    onClick={() => onCreateExam(c.id)}
+                  >
+                    Create Exam
+                  </Button>
+
+                  <Button
+                    size="sm"
+                    variant="btn btn-sm btn-outline-primary"
+                    className="me-2"
+                    onClick={() => onExamVIew(c.id)}
+                  >
+                    View Exam
+                  </Button>
+
+                  <Button
+                    size="sm"
                     variant="warning"
                     className="me-2"
                     onClick={() => onGenerateAudio(c.id)}
@@ -100,6 +120,8 @@ UserCoursesUI.propTypes = {
   error:          PropTypes.any,
   onView:         PropTypes.func.isRequired,
   onProjects:     PropTypes.func.isRequired,
+  onCreateExam:   PropTypes.func.isRequired,
+  onExamVIew:     PropTypes.func.isRequired,
   onEdit:         PropTypes.func.isRequired,
   onDelete:       PropTypes.func.isRequired,
   onGenerateAudio: PropTypes.func.isRequired,

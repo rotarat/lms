@@ -21,6 +21,8 @@ export function UserCoursesContainer() {
 
   const handleView     = (id) => navigate(`/portal/teacher/courses/${id}`)
   const handleProjects = (id) => navigate(`/portal/teacher/courses/${id}/projects`)
+  const handleExamsCreate    = (id) => navigate(`/portal/teacher/courses/${id}/exams/new`)
+  const handleExamsVIew    = (id) => navigate(`/portal/teacher/courses/${id}/exams`)
   const handleDelete   = (id) => deleteCourse(id)
   const handleAddNew   = ()   => navigate('/portal/teacher/courses/create')
 
@@ -54,6 +56,8 @@ export function UserCoursesContainer() {
       onEdit={(id) => navigate(`/portal/teacher/courses/${id}/edit`)}
       onDelete={handleDelete}
       onProjects={handleProjects}
+      onCreateExam={handleExamsCreate}
+      onExamVIew={handleExamsVIew}
       onGenerateAudio={handleGenerateAudio}
       onAddNew={handleAddNew}
     />

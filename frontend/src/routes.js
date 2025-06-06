@@ -10,6 +10,9 @@ import TeacherCoursesPage   from './applications/teacher/pages/TeacherCoursesPag
 import TeacherVideosPage    from './applications/teacher/pages/TeacherVideosPage'
 import TeacherPresentationsPage from './applications/teacher/pages/TeacherPresentationsPage'
 import TeacherProjectsPage  from './applications/teacher/pages/TeacherProjectsPage'
+import TeacherExamFormPage  from './applications/teacher/pages/TeacherExamFormPage'
+import TeacherCourseExamsPage  from './applications/teacher/pages/TeacherCourseExamsPage'
+import TeacherStudentExamDetailPage  from './applications/teacher/pages/TeacherStudentExamDetailPage'
 import DiagramsPage         from './features/ai/pages/DiagramsPage'
 import ProfilePage          from './features/profiles/pages/ProfilePage'
 import SettingsPage         from './features/profiles/pages/ProfileSettingsPage'
@@ -232,6 +235,30 @@ export const teacherRoutes = [
   {
     path:    'courses/:courseId/projects',
     element: TeacherProjectsPage,
+    section: null,
+    label:   null,
+    icon:    null,
+    hideInMenu: true,
+  },
+  {
+    path:    'courses/:courseId/exams/new',
+    element: TeacherExamFormPage,
+    section: null,
+    label:   null,
+    icon:    null,
+    hideInMenu: true,
+  },
+  {
+    path:    'courses/:courseId/exams',
+    element: TeacherCourseExamsPage,
+    section: null,
+    label:   null,
+    icon:    null,
+    hideInMenu: true,
+  },
+  {
+    path:    'courses/:courseId/exams/:studentExamId',
+    element: TeacherStudentExamDetailPage,
     section: null,
     label:   null,
     icon:    null,
