@@ -52,3 +52,9 @@ export async function generateAudio(courseId) {
     )
     return response.data
 }
+
+export async function enroll(courseId) {
+  const response = await apiClient.post(`courses/${courseId}/enroll/`)
+  return response.data
+}
+
