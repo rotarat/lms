@@ -1,5 +1,3 @@
-// src/features/quiz/useQuiz.js
-
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { coursesApi, quizApi, startAdaptiveQuiz } from '../../../shared/api/resourses'
 import { apiClient } from '../../../shared/api/apiClient'

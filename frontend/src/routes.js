@@ -1,7 +1,8 @@
 import StudentHomePage      from './applications/student/pages/StudentHomePage'
 import EnrolledCoursesPage  from './applications/student/pages/EnrolledCoursesPage'
 import AllCoursesPage       from './applications/student/pages/AllCoursesPage'
-import ExamsPage            from './applications/student/pages/ExamsPage'
+import StudentExamsPage     from './applications/student/pages/StudentExamsPage'
+import StudentExamDetailPage from './applications/student/pages/StudentExamDetailPage'
 import QuizPage             from './applications/student/pages/QuizPage'
 import StudentProjectPage   from './applications/student/pages/StudentProjectPage'
 import StudentProjectCreatePage   from './applications/student/pages/StudentProjectCreatePage'
@@ -110,11 +111,19 @@ export const studentRoutes = [
   },
   {
     path:    'exams',
-    element: ExamsPage,
+    element: StudentExamsPage,
     section: 'MENU',
     label:   'Exams',
     icon:    'exam.png',
     hideInMenu: false,
+  },
+  {
+    path:       'exams/:studentExamId',
+    element:    StudentExamDetailPage,
+    section:    null,
+    label:      null,
+    icon:       null,
+    hideInMenu: true,
   },
   {
     path:    'courses',
