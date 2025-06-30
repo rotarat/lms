@@ -35,42 +35,44 @@ export function UserPresentationsUI({
             {presentations.map(p => (
               <tr key={p.id}>
                 <td>{p.title}</td>
-                <td>
-                  <Button
-                    size="sm"
-                    variant="info"
-                    className="me-2"
-                    onClick={() => onView(p.id)}
-                  >
-                    View
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="success"
-                    className="me-2"
-                    onClick={() => onCreateVideo(p.title, p.course)}
-                  >
-                    Create Video
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    className="me-2"
-                    onClick={() => onEdit(p.id)}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="danger"
-                    onClick={() => {
-                      if (window.confirm('Really delete this presentation?')) {
-                        onDelete(p.id)
-                      }
-                    }}
-                  >
-                    Delete
-                  </Button>
+                <td className="text-nowrap">
+                  <div className="d-flex flex-row flex-nowrap align-items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="info"
+                      className="me-2"
+                      onClick={() => onView(p.id)}
+                    >
+                      View
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="success"
+                      className="me-2"
+                      onClick={() => onCreateVideo(p.title, p.course)}
+                    >
+                      Create Video
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="me-2"
+                      onClick={() => onEdit(p.id)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="danger"
+                      onClick={() => {
+                        if (window.confirm('Really delete this presentation?')) {
+                          onDelete(p.id)
+                        }
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </td>
               </tr>
             ))}

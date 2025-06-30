@@ -79,9 +79,6 @@ export function CourseFeaturesList() {
           </p>
 
           <div className="d-flex justify-content-center gap-3 mt-4">
-            <Button outline variant="light">
-              Learn More
-            </Button>
             <Button 
               variant="primary"
               onClick={() => navigate('/register')}

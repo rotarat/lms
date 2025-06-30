@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 
-export function CourseCard({ course, isEnrolled, onEnroll, onView }) {
+export function CourseCard({ course, isEnrolled, onEnroll }) {
   return (
     <div className="card h-100">
       <img
@@ -22,12 +22,6 @@ export function CourseCard({ course, isEnrolled, onEnroll, onView }) {
               Enroll
             </button>
           )}
-          <button
-            className="btn btn-info ms-2"
-            onClick={onView}
-          >
-            View Details
-          </button>
         </div>
       </div>
     </div>
@@ -43,5 +37,4 @@ CourseCard.propTypes = {
   }).isRequired,
   isEnrolled: PropTypes.bool.isRequired,
   onEnroll:   PropTypes.func.isRequired,
-  onView:     PropTypes.func.isRequired,
 }

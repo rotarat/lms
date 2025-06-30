@@ -34,6 +34,14 @@ class CoursePermissions(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
+         # 2) If this is the 'enroll' action, only allow authenticated students:
+        if view.action == "enroll":
+            return (
+                request.user.is_authenticated
+                and hasattr(request.user, "profile")
+                and request.user.profile.role == Profile.Role.STUDENT
+            )
+        
         # creation is teacher or admin
         if view.action == 'create':
             return is_teacher(request.user) or is_admin(request.user)
@@ -44,6 +52,15 @@ class CoursePermissions(permissions.BasePermission):
         # always allow safe reads
         if request.method in permissions.SAFE_METHODS:
             return True
+        
+         # 2) If this is 'enroll', we already checked in has_permission that
+        #    user.profile.role == STUDENT, so allow it here as well:
+        if view.action == "enroll":
+            return (
+                request.user.is_authenticated
+                and hasattr(request.user, "profile")
+                and request.user.profile.role == Profile.Role.STUDENT
+            )
 
         # updates/deletes only by owner or admin
         return is_owner(request.user, obj) or is_admin(request.user)
@@ -93,32 +110,93 @@ class PresentationPermissions(permissions.BasePermission):
 
         return is_owner(request.user, obj) or is_admin(request.user)
 
-class ExamPermissions(CoursePermissions):
+class ExamPermissions(permissions.BasePermission):
     """
-    Exam permissions:
-      - READ (list/retrieve, start): any authenticated user
-      - CREATE: teachers or admin
-      - UPDATE/DELETE: creator or admin
+    - SAFE_METHODS (GET, HEAD, OPTIONS): any authenticated user may list / retrieve.
+       - Students may see exams only if they are enrolled in that exam.course.
+       - Teachers may see the ones they created.
+    - CREATE: only a teacher or admin.
+    - UPDATE / DELETE: only the teacher who created that Exam (i.e. exam.teacher == request.user.profile) or admin.
     """
+
     def has_permission(self, request, view):
+        # 1) SAFE methods: must be authenticated
         if request.method in permissions.SAFE_METHODS:
             return request.user.is_authenticated
-        if view.action == 'create':
-            # allow only teachers/admin
-            from profiles.models import Profile
-            is_teacher = (
-                request.user.is_authenticated
-                and request.user.profile.role == Profile.Role.TEACHER
-            )
-            return is_teacher or request.user.is_staff
+
+        # 2) CREATE: only teachers or admin
+        if view.action == "create":
+            return is_teacher(request.user) or is_admin(request.user)
+
+        # 3) Other write methods (update, partial_update, destroy): user must be authenticated
         return request.user.is_authenticated
 
     def has_object_permission(self, request, view, obj):
-        # safe methods: already checked
+        # SAFE_METHODS: same checks as above, but we must ensure course/enrollment logic on GET if necessary.
+        if request.method in permissions.SAFE_METHODS:
+            # If teacher, ensure they only see their own exam.
+            if hasattr(request.user, "profile") and request.user.profile.role == Profile.Role.TEACHER:
+                return obj.teacher == request.user.profile
+            # If student, ensure they are enrolled in that course:
+            if hasattr(request.user, "profile") and request.user.profile.role == Profile.Role.STUDENT:
+                return obj.course in request.user.profile.enrolled_courses.all()
+            # If admin: allow
+            return request.user.is_staff or request.user.is_superuser
+
+        # Non‐SAFE: only creator or admin
+        return (obj.teacher == request.user.profile) or is_admin(request.user)
+    
+class StudentExamPermissions(permissions.BasePermission):
+    """
+    - SAFE_METHODS (GET, HEAD, OPTIONS):
+       • Students may retrieve only their own attempts.
+       • Teachers may retrieve any attempt for exams they created.
+       • Admins may retrieve all.
+    - submit (POST /api/studentexams/{id}/submit/): only the owning student.
+    - partial_update/update (PATCH/PUT): only the teacher of that exam (or admin).
+    - create/destroy: disallowed via API.
+    """
+
+    def has_permission(self, request, view):
+        # Must be logged in for anything
+        if not request.user or not request.user.is_authenticated:
+            return False
+
+        # SAFE methods: allow, object‐level will restrict
         if request.method in permissions.SAFE_METHODS:
             return True
-        # update/delete only creator or admin
-        return (
-            request.user.is_staff
-            or obj.creator == request.user.profile
-        )
+
+        # Student “submit” custom action
+        if view.action == "submit":
+            return request.user.profile.role == Profile.Role.STUDENT
+
+        # Teacher grading action
+        if view.action in ["partial_update", "update"]:
+            return request.user.profile.role == Profile.Role.TEACHER or request.user.is_staff
+
+        # Disallow create/destroy via client
+        if view.action in ["create", "destroy"]:
+            return False
+
+        return False
+
+    def has_object_permission(self, request, view, obj):
+        profile = request.user.profile
+
+        # SAFE methods
+        if request.method in permissions.SAFE_METHODS:
+            if profile.role == Profile.Role.STUDENT:
+                return obj.student == profile
+            if profile.role == Profile.Role.TEACHER:
+                return obj.exam.teacher == profile
+            return request.user.is_staff
+
+        # submit
+        if view.action == "submit":
+            return obj.student == profile
+
+        # grading
+        if view.action in ["partial_update", "update"]:
+            return obj.exam.teacher == profile or request.user.is_staff
+
+        return False

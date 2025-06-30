@@ -15,8 +15,6 @@ import TeacherPortalLayout     from './layouts/TeacherLayout'
 // Public pages
 import HomePage                from './applications/public/pages/HomePage'
 import PublicCoursesPage       from './applications/public/pages/PublicCourses'
-import Resource from './applications/public/pages/Resources'
-import DiagramResource from './applications/public/pages/DiagramResource'
 
 // Auth pages
 import LoginPage               from './features/authentication/pages/LoginPage'
@@ -42,13 +40,6 @@ export default function App() {
           <Route path="courses">
             <Route index element={<PublicCoursesPage/>}/>
           </Route>
-
-          {/* resources */}
-          <Route path="resources">
-            <Route index element={<Resource/>}/>
-            <Route path="diagram" element={<DiagramResource/>}/>
-          </Route>
-        
 
         </Route>
 

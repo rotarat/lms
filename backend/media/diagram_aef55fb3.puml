@@ -1,0 +1,17 @@
+```plaintext
+@startuml
+skinparam linetype ortho
+
+rectangle "Quantum Superposition\nExplanation" {
+  class "0" as ZeroState
+  class "1" as OneState
+}
+
+rectangle "Superposition State" as Superposition {
+  class "|0> + |1>" as QuantumState
+}
+
+ZeroState ..> QuantumState : "contributes to"
+OneState ..> QuantumState : "contributes to"
+
+@enduml

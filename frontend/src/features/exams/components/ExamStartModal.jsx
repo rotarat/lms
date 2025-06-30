@@ -11,17 +11,16 @@ export function ExamStartModal({ show, onHide, examAttempt, onConfirm }) {
   return (
     <Modal show={show} onHide={onHide} centered>
       <Modal.Header closeButton>
-        <Modal.Title>Start Exam: {course_title}</Modal.Title>
+        <Modal.Title>{course_title}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <p><strong>Description:</strong> {description}</p>
         <p><strong>Questions:</strong> {num_questions}</p>
         <p><strong>Duration:</strong> {duration} min</p>
-        <p>Are you sure you want to start the exam?</p>
+        <p className='text-center mt-3'>Are you sure you want to start the exam?</p>
       </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={onHide}>Cancel</Button>
-        <Button variant="primary" onClick={onConfirm}>Start</Button>
+      <Modal.Footer className="d-flex justify-content-center">
+        <Button className="w-50" variant="primary" onClick={onConfirm}>Start</Button>
       </Modal.Footer>
     </Modal>
   )

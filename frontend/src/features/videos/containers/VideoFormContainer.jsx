@@ -8,6 +8,7 @@ export function VideoFormContainer() {
     loading,
     saving,
     error,
+    confirmation,
     handleChange,
     handleSubmit
   } = useVideoForm()
@@ -19,6 +20,7 @@ export function VideoFormContainer() {
       loading={loading}
       saving={saving}
       error={error}
+      confirmation={confirmation}
       onChange={handleChange}
       onSubmit={handleSubmit}
     />

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { Link }         from 'react-router-dom'
 import { PublicNavbar } from '../components/PublicNavbar'
 import { HeaderSection } from '../components/HeaderSection'
 import { CourseFeaturesList } from '../components/CourseFeaturesList'
@@ -7,7 +6,6 @@ import { Footer }       from '../../../shared/components/Footer'
 import { coursesApi }   from '../../../shared/api/resourses'
 import { CardList }     from '../../../shared/components/CardList'
 import { ResourceCard } from '../../../shared/components/ResourceCard'
-import { Button }       from '../../../shared/components/Button'
 import banner from '../../../assets/banner.png'
 
 export default function PublicCourses() {
@@ -51,11 +49,6 @@ export default function PublicCourses() {
               />
             )}
           />
-          <div className="text-center mt-3">
-            <Button variant="outline-secondary" as={Link} to="/courses">
-              View all
-            </Button>
-          </div>
         </div>
       </section>
       <Footer />

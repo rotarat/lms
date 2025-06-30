@@ -2,12 +2,6 @@ import PropTypes from 'prop-types'
 import { Spinner, Alert } from 'react-bootstrap'
 import { ExamCard } from '../../../features/exams/components/ExamCard'
 
-/**
- * upcoming: array of StudentExam
- * finished: array of StudentExam
- * onStartClick(attempt)
- * onViewClick(attempt)
- */
 export function StudentExamsUI({
   upcoming,
   finished,
@@ -39,7 +33,7 @@ export function StudentExamsUI({
         ))
       )}
 
-      <h4 className="mt-4">Finished Exams</h4>
+      <h4 className="mt-5">Finished Exams</h4>
       {finished.length === 0 ? (
         <p>No finished exams yet.</p>
       ) : (
@@ -57,10 +51,10 @@ export function StudentExamsUI({
 }
 
 StudentExamsUI.propTypes = {
-  upcoming: PropTypes.array.isRequired,
-  finished: PropTypes.array.isRequired,
-  loading: PropTypes.bool.isRequired,
-  error: PropTypes.any,
+  upcoming:  PropTypes.array.isRequired,
+  finished:  PropTypes.array.isRequired,
+  loading:   PropTypes.bool.isRequired,
+  error:     PropTypes.any,
   onStartClick: PropTypes.func.isRequired,
-  onViewClick: PropTypes.func.isRequired,
+  onViewClick:  PropTypes.func.isRequired,
 }

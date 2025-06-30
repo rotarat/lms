@@ -16,12 +16,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from profiles.views import ProfileViewSet
-from ai_assistant.views import QuizServiceViewSet, ChatbotServiceViewSet
+from profiles.views import ProfileViewSet, ProjectViewSet
+from ai_assistant.views import AdaptiveQuizViewSet, ChatbotServiceViewSet, DiagramViewSet
 from authentication.views import AuthViewSet
 from courses.views import (
     CourseViewSet,
     VideoViewSet,
+    OpenEndedQuestionViewSet,
     PresentationViewSet,
     ExamViewSet,
     StudentExamViewSet
@@ -40,13 +41,16 @@ router = DefaultRouter()
 
 router.register('auth', AuthViewSet, basename='auth')
 router.register('profiles', ProfileViewSet, basename='profile')
-router.register('courses', CourseViewSet, basename='course')
+router.register('projects', ProjectViewSet, basename='project')
+router.register('courses', CourseViewSet, basename='courses')
 router.register('videos', VideoViewSet, basename='course-videos')
+router.register('questions', OpenEndedQuestionViewSet, basename='video-questions')
 router.register('presentations', PresentationViewSet, basename='course-presentations')
-router.register('ai/quiz', QuizServiceViewSet, basename='quiz')
+router.register('ai/quiz', AdaptiveQuizViewSet, basename='quiz')
 router.register('ai/chatbot', ChatbotServiceViewSet, basename='chatbot')
 router.register('exams', ExamViewSet, basename='exam')
 router.register('student/exams', StudentExamViewSet, basename='studentexam')
+router.register('ai/diagrams', DiagramViewSet, basename='diagrams'),
 
 urlpatterns = [
     path('admin/', admin.site.urls),

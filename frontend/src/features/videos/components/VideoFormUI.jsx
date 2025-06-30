@@ -7,6 +7,7 @@ export function VideoFormUI({
   loading,
   saving,
   error,
+  confirmation,
   onChange,
   onSubmit
 }) {
@@ -17,7 +18,15 @@ export function VideoFormUI({
   return (
     <div className="container mt-4">
       <h3>Create Video</h3>
+
       {error && <div className="alert alert-danger">{error}</div>}
+
+      {confirmation && (
+        <div className="alert alert-success">
+          Your request has been sent to the backend. You can safely continue using the site.  
+          It may take a while to upload the video.
+        </div>
+      )}
 
       <form onSubmit={onSubmit} noValidate>
         <div className="mb-3">
@@ -65,15 +74,16 @@ export function VideoFormUI({
 }
 
 VideoFormUI.propTypes = {
-  courses: PropTypes.array.isRequired,
-  form:    PropTypes.shape({
+  courses:      PropTypes.array.isRequired,
+  form:         PropTypes.shape({
     course:      PropTypes.string.isRequired,
     title:       PropTypes.string.isRequired,
     description: PropTypes.string
   }).isRequired,
-  loading:  PropTypes.bool.isRequired,
-  saving:   PropTypes.bool.isRequired,
-  error:    PropTypes.string,
-  onChange: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func.isRequired
+  loading:      PropTypes.bool.isRequired,
+  saving:       PropTypes.bool.isRequired,
+  error:        PropTypes.string,
+  confirmation: PropTypes.bool.isRequired,
+  onChange:     PropTypes.func.isRequired,
+  onSubmit:     PropTypes.func.isRequired
 }

@@ -1,12 +1,9 @@
-import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
-import classNames from 'classnames'
 import { Button } from '../../../shared/components/Button'
 import logo from '../../../assets/lms_logo.png'
 
 export function PublicNavbar() {
   const navigate = useNavigate()
-  const [open, setOpen] = useState(false)
 
   return (
     <nav className="navbar navbar-expand-lg bg-primary py-1" data-bs-theme="light">
@@ -19,22 +16,6 @@ export function PublicNavbar() {
               <NavLink to="/courses" className="nav-link text-secondary">
                 Courses Offered
               </NavLink>
-            </li>
-            <li className="nav-item dropdown">
-              <button
-                className="nav-link dropdown-toggle text-secondary"
-                id="resourcesDropdown"
-                onClick={() => setOpen(o => !o)}
-                aria-expanded={open}
-              >
-                Resources
-              </button>
-              <ul
-                className={classNames('dropdown-menu', { show: open })}
-                aria-labelledby="resourcesDropdown"
-              >
-                <li><Link className="dropdown-item" to="/resources/diagram">Diagram</Link></li>
-              </ul>
             </li>
           </ul>
         </div>

@@ -2,15 +2,16 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
-from .models import Profile
-from .serializers import ProfileSerializer, ProfileCreateSerializer, ChangePasswordSerializer
-from .permissions import IsOwnerOrAdmin
+from .models import Profile, Project
+from .serializers import ProfileSerializer, ProfileCreateSerializer, ChangePasswordSerializer, ProjectCreateSerializer, ProjectSerializer
+from .permissions import IsOwnerOrAdmin, IsTeacherOrProjectOwner
 
 from authentication.services import get_tokens_for_user
 
 from rest_framework.decorators import action
-
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
+from .filters import ProjectFilter
 
 class ProfileViewSet(viewsets.ModelViewSet):
     queryset = Profile.objects.select_related('user').all()
@@ -74,3 +75,47 @@ class ProfileViewSet(viewsets.ModelViewSet):
         password_change_ser.save()
 
         return Response({'detail': 'Password updated.'}, status=status.HTTP_200_OK)
+    
+class ProjectViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for Projects:
+    - Students can create (upload) their own projects.
+    - Teachers can list all projects for a course, download the file, and assign grades.
+    - Permissions enforced by IsTeacherOrProjectOwner.
+    """
+    queryset = Project.objects.select_related('student__user','course').all()
+    permission_classes = [IsAuthenticated, IsTeacherOrProjectOwner]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_class = ProjectFilter
+    search_fields    = ['title', 'description', 'student__user__username', 'course__title']
+    ordering_fields  = ['created_at', 'student__user__username', 'grade']
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return ProjectCreateSerializer
+        return ProjectSerializer
+
+    def get_queryset(self):
+        """
+        - If user is a teacher: allow filtering by ?course=<course_id> to see all student projects for that course.
+        - If user is a student: return only their own projects.
+        """
+        user_profile = self.request.user.profile
+        qs = super().get_queryset()
+
+        if user_profile.role == Profile.Role.TEACHER:
+            course_id = self.request.query_params.get('course')
+            username  = self.request.query_params.get('username')
+            if course_id:
+                qs = qs.filter(course_id=course_id)
+            if username:
+                qs = qs.filter(student__user__username=username)
+            return qs
+        # Student: ignore query params, return only self
+        return qs.filter(student=user_profile)
+
+    def perform_destroy(self, instance):
+        """
+        Only teachers can delete a project (enforced by permission).
+        """
+        instance.delete()

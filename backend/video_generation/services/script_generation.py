@@ -3,6 +3,7 @@ import fitz
 import base64
 import asyncio
 import json
+import re
 from pathlib import Path
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -83,32 +84,47 @@ def call_gpt(prompt, base64_image, course_title):
 async def analyze_slide_async(pdf_path, page_number, sem, course_title):
     async with sem:
         print(f"Processing slide {page_number + 1}..")
-        # base64_img = await asyncio.to_thread(convert_slide_to_base64, pdf_path, page_number)
-        # prompt = create_prompt(page_number)
-        # raw_output = await asyncio.to_thread(call_gpt, prompt, base64_img, course_title)
+        # 1) render & save the slide to a PNG so we have a real file path
+        output_image_path = await asyncio.to_thread(save_slide_image, pdf_path, page_number)
+        base64_img        = await asyncio.to_thread(convert_slide_to_base64, pdf_path, page_number)
+        prompt = create_prompt(page_number)
+        raw_output = await asyncio.to_thread(call_gpt, prompt, base64_img, course_title)
 
-        # if not raw_output:
-        #     return Slide(num_page=page_number + 1, image_base64=base64_img, script="Error while generating", topic="")
+        if not raw_output:
+            return Slide(
+              num_page=page_number + 1,
+              image_path=Path(output_image_path),
+              script="Error while generating",
+              topic=""
+            )
 
         # Save for review
-        # with open(f"video_generation/services/test_slides/gpt_slide_{page_number + 1}.txt", "w", encoding="utf-8") as f:
-        #     f.write(raw_output)
+        with open(f"video_generation/services/test_slides/gpt_slide_{page_number + 1}.txt", "w", encoding="utf-8") as f:
+            f.write(raw_output)
 
-        # try:
-        #     parsed = json.loads(raw_output)
-        #     topic = parsed.get("topic", "").strip()
-        #     script = parsed.get("script", "").strip()
-        # except Exception as e:
-        #     print(f"JSON parsing error on slide {page_number + 1}: {e}")
-        #     topic = ""
-        #     script = raw_output.strip()
+        cleaned = raw_output.strip()
+        if cleaned.startswith("```") and cleaned.endswith("```"):
+            inner = cleaned[3:-3].strip()
+            if inner.lower().startswith("json"):
+                inner = inner[4:].strip()
+            cleaned = inner
+        m = re.search(r'\{.*\}', cleaned, flags=re.DOTALL)
+        json_str = m.group(0) if m else cleaned
+        try:
+            parsed = json.loads(json_str)
+            topic  = parsed.get("topic", "").strip()
+            script = parsed.get("script", "").strip()
+        except Exception as e:
+            print(f"JSON parsing error on slide {page_number + 1}: {e}")
+            topic  = ""
+            script = cleaned
 
-        img_path = await asyncio.to_thread(save_slide_image, pdf_path, page_number)
+        # finally, return a Slide with a real image_path
         return Slide(
             num_page=page_number + 1,
-            image_path=Path(img_path),
-            script="",
-            topic=""
+            image_path=Path(output_image_path),
+            script=script,
+            topic=topic
         )
 
 

@@ -1,148 +1,118 @@
-import React, { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
-import { PopupWindow } from '../../../shared/components/PopupWindow'
-import { ProgressBar, Row, Col } from 'react-bootstrap'
+import { Modal, ProgressBar, Row, Col, Button } from 'react-bootstrap'
 
-/**
- * Full-screen exam UI:
- * - Header (timer + course) is sticky
- * - Answer buttons reflect current choice (solid red) but remain clickable
- * - Submit button is solid red
- */
+function formatTime(sec) {
+  const m = Math.floor(sec / 60)
+  const s = sec % 60
+  return `${m}:${String(s).padStart(2, '0')}`
+}
+
 export function ExamTakePopup({
   show,
-  onClose,
+  selected,
+  timeRem,
+  pct,
+  disabled,
+  timedOut,
   examAttempt,
-  onSubmitAnswers,
+  onClose,
+  handleChoice,
+  handleManualSubmit,
 }) {
-  // Hook declarations (always top‐level)
-  const [selected, setSelected] = useState({})
-  const [timeRem, setTimeRem]   = useState(0)
-  const timer = useRef(null)
-
-  // Initialize state when popup opens
-  useEffect(() => {
-    if (!show || !examAttempt) return
-
-    setSelected(examAttempt.answers || {});
-    setTimeRem(examAttempt.exam.duration * 60)
-
-    timer.current = setInterval(() => {
-      setTimeRem((t) => (t > 0 ? t - 1 : 0))
-    }, 1000)
-
-    return () => clearInterval(timer.current)
-  }, [show, examAttempt])
-
-  // Don’t render until ready
-  if (!show || !examAttempt) return null
-
-  const { exam, questions } = examAttempt
-  const disabled = timeRem === 0
-
-  const handleChoice = (idx, choice) => {
-    if (disabled) return
-    setSelected((s) => ({ ...s, [idx]: choice }))
-  }
-
-  const handleSubmit = () => {
-    clearInterval(timer.current)
-    onSubmitAnswers(examAttempt.id, selected)
-  }
-
-  const pct = ((timeRem / (exam.duration * 60)) * 100).toFixed(2)
+  if (!show || !examAttempt || !examAttempt.id) return null
 
   return (
-    <PopupWindow
+    <Modal
       show={show}
-      onClose={() => {
-        clearInterval(timer.current)
-        onClose()
-      }}
-      fullScreen
-      style={{ backgroundColor: '#1e1e2f' }}
+      onHide={onClose}
+      backdrop="static"
+      keyboard={false}
+      fullscreen
+      className="exam-modal m-0 p-0"
+      dialogClassName="m-0"
+      contentClassName="p-0"
     >
-      {/* Sticky header */}
-      <div
-        style={{
-          position: 'sticky',
-          top: 0,
-          backgroundColor: '#1e1e2f',
-          zIndex: 1000,
-          paddingBottom: '0.5rem 1rem',
-        }}
-      >
-        <Row className="mb-2 text-danger">
-          <Col>
-            <strong>Time:</strong>{' '}
-            {Math.floor(timeRem / 60)}:
-            {String(timeRem % 60).padStart(2, '0')}
-          </Col>
-          <Col className="text-end">
-            <strong>Course:</strong> {exam.course_title}
-          </Col>
-        </Row>
-        <ProgressBar now={pct} variant="danger" className="mb-3" />
-      </div>
+      <Modal.Body className="p-0 m-0">
+        <div className="h-100 d-flex flex-column" style={{ backgroundColor: '#1e1e2f' }}>
+          {/* Sticky Header */}
+          <div className="sticky-top bg-dark p-2">
+            <Row className="text-danger mb-1">
+              <Col>
+                <strong>Time:</strong>{' '}
+                {timeRem != null ? formatTime(timeRem) : '–'}
+              </Col>
+              <Col className="text-end">
+                <strong>Course:</strong> {examAttempt.exam.course_title}
+              </Col>
+            </Row>
+            <ProgressBar now={pct} variant="danger" className="mb-1" />
+          </div>
 
-      {/* Questions */}
-      {questions.map((q, i) => {
-        const current = selected[i]
-        return (
-          <div key={i} className="mb-5 text-center px-3">
-            <h5 className="text-danger mb-3">
-              Q{i + 1}. {q.question}
-            </h5>
-            {q.choices.map((c, j) => (
-              <button
-                key={j}
-                className={
-                  current === c
-                    ? 'btn btn-danger mb-3'
-                    : 'btn btn-outline-danger mb-3'
-                }
-                style={{ width: '70%' }}
-                disabled={disabled}
-                onClick={() => handleChoice(i, c)}
-              >
-                {c}
-              </button>
+          {/* Questions */}
+          <div className="flex-grow-1 overflow-auto py-2">
+            {examAttempt.questions.map((q, idx) => (
+              <div key={idx} className="mb-4 text-center px-3">
+                <h5 className="text-danger mb-2">
+                  Q{idx + 1}. {q.question}
+                </h5>
+                {q.choices.map((choice, j) => {
+                  const isSelected = selected[idx] === j
+                  return (
+                    <button
+                      key={j}
+                      onClick={() => handleChoice(idx, j)}
+                      disabled={disabled}
+                      className={
+                        isSelected
+                          ? 'btn btn-danger mb-2'
+                          : 'btn btn-outline-danger mb-2'
+                      }
+                      style={{ width: '75%' }}
+                    >
+                      {choice}
+                    </button>
+                  )
+                })}
+              </div>
             ))}
           </div>
-        )
-      })}
 
-      {/* Submit */}
-      <div className="text-center mb-4">
-        <button
-          className="btn btn-danger"
-          style={{ width: '40%' }}
-          onClick={handleSubmit}
-          disabled={disabled}
-        >
-          Submit
-        </button>
-      </div>
-    </PopupWindow>
+          {/* Footer */}
+          <div className="text-center p-2">
+            {timedOut || disabled ? (
+              <>
+                <p className="text-danger mb-2">
+                  Your time is over! The answers were saved and the exam will be reviewed soon.
+                </p>
+                <Button variant="secondary" onClick={onClose} style={{ width: '50%' }}>
+                  Close
+                </Button>
+              </>
+            ) : (
+              <Button
+                variant="danger"
+                onClick={handleManualSubmit}
+                style={{ width: '50%' }}
+              >
+                Submit
+              </Button>
+            )}
+          </div>
+        </div>
+      </Modal.Body>
+    </Modal>
   )
 }
 
 ExamTakePopup.propTypes = {
-  show: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-  examAttempt: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    exam: PropTypes.shape({
-      course_title: PropTypes.string.isRequired,
-      duration: PropTypes.number.isRequired,
-    }).isRequired,
-    questions: PropTypes.arrayOf(
-      PropTypes.shape({
-        question: PropTypes.string.isRequired,
-        choices: PropTypes.arrayOf(PropTypes.string).isRequired,
-      })
-    ).isRequired,
-    answers: PropTypes.object,
-  }).isRequired,
-  onSubmitAnswers: PropTypes.func.isRequired,
+  show:               PropTypes.bool.isRequired,
+  selected:           PropTypes.object.isRequired,
+  timeRem:            PropTypes.number,
+  pct:                PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  disabled:           PropTypes.bool.isRequired,
+  timedOut:           PropTypes.bool.isRequired,
+  examAttempt:        PropTypes.object.isRequired,
+  onClose:            PropTypes.func.isRequired,
+  handleChoice:       PropTypes.func.isRequired,
+  handleManualSubmit: PropTypes.func.isRequired,
 }

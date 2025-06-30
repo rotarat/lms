@@ -26,7 +26,7 @@ export function useStudentExams() {
   }, [profile.username])
 
   const upcoming = allExams.filter((e) => e.submitted_at === null)
-  const finished = allExams.filter((e) => e.submitted_at !== null)
+  const finished = allExams.filter((e) => e.submitted_at || e.started_at !== null)
 
   return { upcoming, finished, loading, error }
 }

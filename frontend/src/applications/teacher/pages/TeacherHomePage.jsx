@@ -1,10 +1,5 @@
-import { Outlet } from 'react-router-dom'
+import { TeacherHomeContainer } from '../containers/TeacherHomeContainer'
 
 export default function TeacherHomePage() {
-  return (
-    <div>
-      <h1>This is the Teacher Home page</h1>
-      <Outlet/>
-    </div>
-  )
+  return <TeacherHomeContainer />
 }

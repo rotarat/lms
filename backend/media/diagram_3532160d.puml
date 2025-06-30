@@ -1,0 +1,20 @@
+```plantuml
+@startuml
+skinparam monochrome true
+
+actor Observer
+participant Atom
+entity "Energy Levels" as Levels {
+  state "Initial State" as S1
+  state "Higher State" as S2
+}
+
+Observer -> Atom : Observe
+Atom -> Levels : Electron jumps
+S1 --> S2 : Absorbs energy
+S2 --> S1 : Releases energy
+
+note top of S1 : Ground state\n(lowest energy)
+note top of S2 : Excited state\n(higher energy)
+
+@enduml

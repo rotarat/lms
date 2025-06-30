@@ -7,7 +7,7 @@ import { Card } from 'react-bootstrap'
  * onClick: () => void
  */
 export function ExamCard({ examAttempt, isFinished, onClick }) {
-  const { exam, submitted_at, grade } = examAttempt
+  const { exam, grade } = examAttempt
 
   return (
     <Card onClick={onClick} className="mb-3 clickable-card">
@@ -16,10 +16,6 @@ export function ExamCard({ examAttempt, isFinished, onClick }) {
 
         {isFinished ? (
           <>
-            <div>
-              <strong>Submitted:</strong>{' '}
-              {new Date(submitted_at).toLocaleString()}
-            </div>
             <div>
               <strong>Grade:</strong>{' '}
               {grade != null ? grade.toFixed(2) : 'Waiting for review'}

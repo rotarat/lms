@@ -1,11 +1,7 @@
-import { Button } from '../../../shared/components/Button'
-
 export function TwoColumnSection({
   imageUrl,
   title,
   text,
-  learnLink,
-  joinLink,
   reverse = false
 }) {
   return (
@@ -22,14 +18,6 @@ export function TwoColumnSection({
           <div className="col-md-6">
             <h2 className="fw-bold mb-3">{title}</h2>
             <p className="mb-4 text-muted">{text}</p>
-            <div className="d-flex gap-2">
-              <Button variant="outline-light" to={learnLink}>
-                Learn More
-              </Button>
-              <Button variant="primary" to={joinLink}>
-                Join &rarr;
-              </Button>
-            </div>
           </div>
         </div>
       </div>

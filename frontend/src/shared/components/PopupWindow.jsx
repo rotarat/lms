@@ -1,4 +1,3 @@
-// src/shared/components/PopupWindow.jsx
 import { Modal } from 'react-bootstrap'
 import PropTypes from 'prop-types'
 
@@ -6,6 +5,7 @@ import PropTypes from 'prop-types'
  * A simple wrapper around <Modal> that:
  *  - is non-dismissable by outside click or ESC
  *  - can be fullScreen
+ *  - allows overriding centered, size, dialogClassName, contentClassName
  *  - forwards `style` into the .modal-body
  */
 export function PopupWindow({
@@ -13,19 +13,27 @@ export function PopupWindow({
   children,
   fullScreen = false,
   style = {},
+  className = '',
+  dialogClassName,
+  contentClassName,
+  ...modalProps
 }) {
   return (
     <Modal
       show={show}
       backdrop="static"
       keyboard={false}
-      centered
+      centered={!fullScreen}
+      size={fullScreen ? undefined : 'xl'}
       fullscreen={fullScreen}
-      size="xl"
-      contentClassName="overflow-hidden"
-      dialogClassName="blur-backdrop"
+      className={className}
+      dialogClassName={dialogClassName}
+      contentClassName={contentClassName}
+      {...modalProps}
     >
-      <div className="modal-body p-4" style={style}>
+      <div
+        style={style}
+      >
         {children}
       </div>
     </Modal>
@@ -33,8 +41,11 @@ export function PopupWindow({
 }
 
 PopupWindow.propTypes = {
-  show: PropTypes.bool.isRequired,
-  children: PropTypes.node,
-  fullScreen: PropTypes.bool,
-  style: PropTypes.object,
+  show:            PropTypes.bool.isRequired,
+  children:        PropTypes.node,
+  fullScreen:      PropTypes.bool,
+  style:           PropTypes.object,
+  className:       PropTypes.string,
+  dialogClassName: PropTypes.string,
+  contentClassName:PropTypes.string,
 }

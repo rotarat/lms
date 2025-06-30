@@ -26,7 +26,14 @@ export function VideoDetailUI({
         />
       </div>
 
-      {video.description && <p>{video.description}</p>}
+      {video.description && 
+        video.description
+          .split('\n')
+          .filter(line => line.trim() !== '')
+          .map((line, i) => (
+            <p key={i}>{line.trim()}</p>
+          ))
+      }
 
       {/* Show “Preparing personalized questions…” or error, or the form */}
       {loadingQuestions && (

@@ -9,16 +9,7 @@ export const presentationsApi = createResourceApi('presentations')
 
 export const examsApi = createResourceApi('exams')
 
-export const studentExamsApi = {
-  ...createResourceApi('student/exams'),
-  /**
-   * POST /api/student/exams/{id}/submit/
-   */
-  submit: (id, data) =>
-    apiClient
-      .post(`/student/exams/${id}/submit/`, data)
-      .then((r) => r.data),
-}
+export const studentExamsApi = createResourceApi('student/exams')
 
 export const questionsApi = createResourceApi('questions')
 
@@ -66,3 +57,20 @@ export async function enroll(courseId) {
   const response = await apiClient.post(`courses/${courseId}/enroll/`)
   return response.data
 }
+
+export async function submitExam(id, { answers, submittedAt }) {
+  const payload = { answers }
+  if (submittedAt) payload.submittedAt = submittedAt
+  return apiClient.post(`/student/exams/${id}/submit/`, payload)
+}
+
+/**
+ * POST /api/student/exams/start/
+ * @param {{ exam_id: string }}
+ */
+export function startStudentExam({ exam_id }) {
+  return apiClient
+    .post('/student/exams/start/', { exam_id })
+    .then(resp => resp.data)
+}
+

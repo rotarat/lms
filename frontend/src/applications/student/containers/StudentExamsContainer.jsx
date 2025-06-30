@@ -1,30 +1,31 @@
 import { useState } from 'react'
-import { useNavigate }            from 'react-router-dom'
-import { useStudentExams }        from '../hooks/useStudentExams'
-import { useStartExam }           from '../../../features/exams/hooks/useStartExam'
-import { useExamDetail }          from '../../../features/exams/hooks/useExamDetail'
-import {StudentExamsUI}             from '../components/StudentExamsUI'
-import {ExamStartModal}             from '../../../features/exams/components/ExamStartModal'
-import {ExamTakePopup}              from '../../../features/exams/components/ExamTakePopup'
+import { useNavigate } from 'react-router-dom'
+import { useStudentExams } from '../hooks/useStudentExams'
+import { useStartExam } from '../../../features/exams/hooks/useStartExam'
+import { StudentExamsUI } from '../components/StudentExamsUI'
+import { ExamStartModal } from '../../../features/exams/components/ExamStartModal'
+import ExamTakePopupContainer from '../../../features/exams/containers/ExamTakePopupContainer'
 
 export default function StudentExamsContainer() {
   const navigate = useNavigate()
-
-  const { upcoming, finished, loading, error } = useStudentExams()
+  const { upcoming, finished, loading, error, refresh } = useStudentExams()
   const { start, loading: starting, error: startErr } = useStartExam()
-  const { submit } = useExamDetail()
 
   const [showStartModal, setShowStartModal] = useState(false)
   const [currentAttempt, setCurrentAttempt] = useState(null)
-  const [showTakePopup, setShowTakePopup]   = useState(false)
+  const [showTakePopup, setShowTakePopup] = useState(false)
 
-  // When the student clicks “Start” on an upcoming exam
+  // Kick off or resume an exam
   const handleStartClick = async (attempt) => {
     try {
-      const fetched = await start(attempt.id)
-      setCurrentAttempt(fetched)
+      const se = await start(attempt.id)
+      setCurrentAttempt(se)
       setShowStartModal(true)
-    } catch {}
+      // after marking started, re-fetch both lists
+      refresh()
+    } catch {
+      /* swallow */
+    }
   }
 
   const confirmStart = () => {
@@ -32,19 +33,10 @@ export default function StudentExamsContainer() {
     setShowTakePopup(true)
   }
 
-  // When the student clicks any card
-  const handleViewClick = async (attempt) => {
-    if (attempt.submitted_at) {
-      // Finished → go to detail page
-      navigate(`/portal/student/exams/${attempt.id}`)
-    } else {
-      // Upcoming → run the start flow
-      handleStartClick(attempt)
-    }
+  // Clicking a finished exam → go to detail
+  const handleViewClick = (attempt) => {
+    navigate(`/portal/student/exams/${attempt.id}`)
   }
-
-  const handleSubmitAnswers = (id, answers) =>
-    submit(id, answers).then(() => setShowTakePopup(false))
 
   return (
     <>
@@ -64,11 +56,10 @@ export default function StudentExamsContainer() {
         onConfirm={confirmStart}
       />
 
-      <ExamTakePopup
+      <ExamTakePopupContainer
         show={showTakePopup}
-        onClose={() => setShowTakePopup(false)}
         examAttempt={currentAttempt}
-        onSubmitAnswers={handleSubmitAnswers}
+        onClose={() => setShowTakePopup(false)}
       />
     </>
   )

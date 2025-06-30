@@ -11,10 +11,9 @@ export default function AllCoursesUI({
   error,
   enrolledCourseIds,
   onEnroll,
-  onViewCourse,
 }) {
   if (loading) return <p>Loading courses…</p>
-  if (error)   return <div className="alert alert-danger">{error.message || JSON.stringify(error)}</div>
+  if (error) return <div className="alert alert-danger">{error.message || JSON.stringify(error)}</div>
 
   if (!courses || courses.length === 0) {
     return <p className="text-center">No available courses to enroll in.</p>
@@ -31,7 +30,6 @@ export default function AllCoursesUI({
             course={course}
             isEnrolled={enrolledCourseIds.includes(course.id)}
             onEnroll={() => onEnroll(course.id)}
-            onView={() => onViewCourse(course.id)}
           />
         )}
         gridClassName="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4"
@@ -72,13 +70,12 @@ export default function AllCoursesUI({
 }
 
 AllCoursesUI.propTypes = {
-  courses:            PropTypes.array.isRequired,
-  page:               PropTypes.number.isRequired,
-  totalPages:         PropTypes.number.isRequired,
-  setPage:            PropTypes.func.isRequired,
-  loading:            PropTypes.bool.isRequired,
-  error:              PropTypes.any,
-  enrolledCourseIds:  PropTypes.array.isRequired,
-  onEnroll:           PropTypes.func.isRequired,
-  onViewCourse:       PropTypes.func.isRequired,
+  courses:           PropTypes.array.isRequired,
+  page:              PropTypes.number.isRequired,
+  totalPages:        PropTypes.number.isRequired,
+  setPage:           PropTypes.func.isRequired,
+  loading:           PropTypes.bool.isRequired,
+  error:             PropTypes.any,
+  enrolledCourseIds: PropTypes.array.isRequired,
+  onEnroll:          PropTypes.func.isRequired,
 }

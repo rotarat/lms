@@ -1,0 +1,47 @@
+```plantuml
+@startuml
+skinparam handwritten true
+
+package "Квантови концепции" {
+
+  [Кубити] as qubits
+  [Квантови врати] as gates
+  [Квантова схема] as circuit
+  [Суперпозиция] as superposition
+  [Преплитане] as entanglement
+  [Измерване] as measurement
+
+  qubits -down-> superposition : Състояние на кубитите
+  qubits -up-> entanglement : Взаимодействие на кубитите
+
+  gates --> circuit : Част от
+  circuit --> measurement : Изход
+  superposition --> measurement : Краен резултат
+  entanglement --> measurement : Влияние върху резултата
+
+}
+
+note right of qubits
+  Основната единица на
+  квантова информация.
+end note
+
+note right of gates
+  Оператори, които
+  променят състоянията
+  на кубитите.
+end note
+
+note right of entanglement
+  Феномен, при който
+  състоянията на кубитите
+  са свързани.
+end note
+
+note right of measurement
+  Крайното действие
+  за получаване на
+  класическа стойност.
+end note
+
+@enduml

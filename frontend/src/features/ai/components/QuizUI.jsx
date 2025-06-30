@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types'
 import { Spinner, ProgressBar, Row, Col } from 'react-bootstrap'
 import { PopupWindow } from '../../../shared/components/PopupWindow'
+import { LoadingButton } from '../../../shared/components/LoadingButton'
 
 export function QuizUI({
   // ─── SETTINGS PROPS (unchanged) ────────────────────────────────────────────
@@ -27,10 +28,11 @@ export function QuizUI({
   timeRem,
   progressRef,
   reflectionsList,
+  isNextLoading,
 
   // ─── POPUP CONTROL ──────────────────────────────────────────────────────────
   showPopup,
-  onClosePopup,     // ← optional “close” handler if you want an X in the modal
+  onClosePopup,
 
   // ─── ACTIONS ───────────────────────────────────────────────────────────────
   startQuiz,
@@ -39,7 +41,7 @@ export function QuizUI({
   resetToSettings
 }) {
   // ────────────────────────────────────────────────────────────────────────────────
-  // SETTINGS PHASE (no changes here)  
+  // SETTINGS PHASE
   // ────────────────────────────────────────────────────────────────────────────────
   if (phase === 'settings') {
     return (
@@ -114,12 +116,12 @@ export function QuizUI({
   }
 
   // ────────────────────────────────────────────────────────────────────────────────
-  // LOADING PHASE (unchanged; still inside PopupWindow)  
+  // LOADING PHASE 
   // ────────────────────────────────────────────────────────────────────────────────
   if (phase === 'loading') {
     return (
       <PopupWindow show={showPopup} onClose={onClosePopup}>
-        <div className="quiz-loading text-center">
+        <div className="quiz-loading text-center  mt-3">
           <Spinner animation="border" role="status">
             <span className="visually-hidden">Loading…</span>
           </Spinner>
@@ -131,13 +133,12 @@ export function QuizUI({
 
   // ────────────────────────────────────────────────────────────────────────────────
   // RUNNING PHASE (ONE QUESTION AT A TIME)  
-  // (Here is where we make the requested changes)
   // ────────────────────────────────────────────────────────────────────────────────
   if (phase === 'running') {
     if (!currentQuestion) {
       return (
         <PopupWindow show={showPopup} onClose={onClosePopup}>
-          <div className="alert alert-warning text-center">
+          <div className="alert alert-warning text-center mt-3">
             No question available. Please try restarting the quiz.
             <br />
             <button className="btn btn-secondary mt-2" onClick={resetToSettings}>
@@ -153,17 +154,11 @@ export function QuizUI({
     return (
       <PopupWindow show={showPopup} onClose={onClosePopup}>
         {/* ─── HEADER ROW: "Question X of Y" on left, "Score: Z" on right ───────────────── */}
-        {/*
-          We add px‐2 (horizontal padding) and py‐1 (vertical padding) so that
-          neither text touches the very edge of the popup. 5px is roughly 0.3rem,
-          so px‐2 ~ 0.5rem actually gives a little more breathing room—feel free to
-          swap px‐1 if you want exactly ~5px.
-        */}
-        <Row className="mb-2">
+        <Row className="mb-2 mt-3">
           <Col>
             <strong>Question {currentIdx + 1} of {numQuestions}</strong>
           </Col>
-          <Col>
+          <Col className="text-end">
             <strong>Score: {score}</strong>
           </Col>
         </Row>
@@ -249,9 +244,9 @@ export function QuizUI({
         {/* ─── NEXT QUESTION BUTTON (only once explanation/rationale shows) ───────────────── */}
         {showExp && (
           <div className="text-center mb-1 px-2">
-            <button className="btn btn-primary" onClick={nextQ}>
+            <LoadingButton loading={isNextLoading} onClick={nextQ}>
               Next Question
-            </button>
+            </LoadingButton>
           </div>
         )}
       </PopupWindow>
@@ -269,7 +264,7 @@ export function QuizUI({
     return (
       <PopupWindow show={showPopup} onClose={onClosePopup}>
         {readyReflections.length > 0 ? (
-          <div className="mb-4 px-2">
+          <div className="mb-4 px-2 mt-3">
             <h4>Reflect on these questions:</h4>
             {readyReflections.map((item, idx) => (
               <div key={idx} className="card mb-3 text-left">
@@ -293,10 +288,9 @@ export function QuizUI({
           Final Score: {score} / {questions.length}
         </p>
 
-        <div className="text-center mt-4 px-2 mb-2">
-          <button className="btn btn-secondary" onClick={resetToSettings}>
-            New Quiz
-          </button>
+        <div className="d-flex justify-content-center gap-2 mt-4 px-2 mb-2">
+          <button className="btn btn-secondary" onClick={resetToSettings}>New Quiz</button>
+          <button className="btn btn-outline-secondary" onClick={onClosePopup}>Close</button>
         </div>
       </PopupWindow>
     )
@@ -360,5 +354,6 @@ QuizUI.propTypes = {
   startQuiz: PropTypes.func.isRequired,
   handleAnswer: PropTypes.func.isRequired,
   nextQ: PropTypes.func.isRequired,
-  resetToSettings: PropTypes.func.isRequired
+  isNextLoading: PropTypes.bool.isRequired,
+  resetToSettings: PropTypes.func.isRequired,
 }

@@ -13,21 +13,18 @@ const featureItems = [
     iconUrl: '/icons/ai.svg',
     title: 'Transform Your Learning Experience with Cutting-Edge Tools',
     description: 'Our AI tutor is available to assist you anytime, ensuring you never feel lost.',
-    linkText: 'Learn More',
     to: '/ai/chat'
   },
   {
     iconUrl: '/icons/diagram.svg',
     title: 'Create Stunning Diagrams with Our Easy-to-Use Generator',
     description: 'Visualize your ideas effortlessly with our intuitive diagram generator.',
-    linkText: 'Get Started',
     to: '/ai/diagrams'
   },
   {
     iconUrl: '/icons/mindmap.svg',
-    title: 'Unlock Your Creativity with Our Mind Mapping Feature',
-    description: 'Organize your thoughts and brainstorm effectively with our mind mapping tools.',
-    linkText: 'Explore',
+    title: 'Unlock Your Creativity with Our Open Ended Questions and Quizzes',
+    description: 'Organize your thoughts and brainstorm effectively with our ai powered tools.',
     to: '/ai/mindmap'
   }
 ]
@@ -42,12 +39,6 @@ export default function HomePage() {
         title="Learn. Grow. Succeed."
         subtitle="Discover a wide range of engaging courses tailored to enhance your educational journey."
         buttons={[
-          {
-            to: '/resources',
-            label: 'Learn More',
-            variant: 'light',
-            outline: true,
-          },
           {
             to: '/register',
             label: 'Join Us',

@@ -5,7 +5,6 @@ import {
   Spinner,
   Alert,
   Card,
-  ListGroup,
   Button,
   Form,
 } from 'react-bootstrap'
@@ -48,10 +47,9 @@ export default function TeacherExamDetailUI({
     answers = {},
     grade,
     personal_feedback,
-    exam: { description: examDesc },
+    exam: { description: examDesc } = {},
     student: { user: { first_name, last_name } = {} } = {},
   } = studentExam
-
   const studentName = `${first_name || ''} ${last_name || ''}`.trim()
 
   const handleGradeSubmit = async (e) => {
@@ -76,23 +74,28 @@ export default function TeacherExamDetailUI({
 
   return (
     <Container className="mt-4">
-      <h3>
-        Student Exam: {studentName} – {examDesc}
-      </h3>
+      {/* Injected CSS to override Quartz theme */}
+      <style>{`
+        /* remove white background & border from ListGroup.Items */
+        .override-answers .list-group-item {
+          background-color: transparent !important;
+          border: none !important;
+        }
+      `}</style>
+
+      {/* Header + description */}
+      <h3>Student Exam: {studentName}</h3>
+      <p className="text-muted mb-4">{examDesc}</p>
 
       {grade != null && (
         <Alert variant="success">
           <strong>Grade: {grade.toFixed(2)}</strong>
         </Alert>
       )}
-
       {grade == null && (
         <Alert variant="warning">Student has not yet been graded.</Alert>
       )}
-
-      {localError && (
-        <Alert variant="danger">{localError}</Alert>
-      )}
+      {localError && <Alert variant="danger">{localError}</Alert>}
 
       {/* Grade form */}
       {grade == null && !showGradeForm && (
@@ -104,7 +107,6 @@ export default function TeacherExamDetailUI({
           Grade
         </Button>
       )}
-
       {grade == null && showGradeForm && (
         <Card className="mb-4">
           <Card.Body>
@@ -151,42 +153,43 @@ export default function TeacherExamDetailUI({
         </Card>
       )}
 
-      {/* Display each question */}
-      {questions.map((q, idx) => {
-        const correctIdx = q.correct_index
-        const studentAnswer =
-          answers && answers.hasOwnProperty(idx.toString())
-            ? answers[idx.toString()]
+      {/* Questions & Answers */}
+      <div className="override-answers">
+        {questions.map((q, idx) => {
+          const correctIdx = q.correct_index
+          const studentAnsIdx = answers.hasOwnProperty(idx.toString())
+            ? Number(answers[idx.toString()])
             : null
 
-        return (
-          <Card key={idx} className="mb-4">
-            <Card.Body>
-              <Card.Title>
-                Q{idx + 1}. {q.question}
-              </Card.Title>
-              <ListGroup variant="flush">
-                {q.choices.map((choiceText, cIdx) => {
-                  const isCorrect = cIdx === correctIdx
-                  const isStudentChoice = cIdx === studentAnswer
-                  // Decide style:
-                  let itemClass = ''
-                  if (isCorrect) itemClass = 'fw-bold text-success'
-                  if (isStudentChoice && !isCorrect) itemClass = 'text-danger'
+          return (
+            <Card key={idx} className="mb-4">
+              <Card.Body>
+                <Card.Title>
+                  Q{idx + 1}. {q.question}
+                </Card.Title>
+                <ul className="list-unstyled mb-0">
+                  {q.choices.map((choiceText, cIdx) => {
+                    const isCorrect = cIdx === correctIdx
+                    const isStudentChoice = cIdx === studentAnsIdx
+                    let liClass = ''
+                    if (isCorrect) liClass = 'fw-bold text-success'
+                    else if (isStudentChoice && !isCorrect)
+                      liClass = 'text-danger'
 
-                  return (
-                    <ListGroup.Item key={cIdx} className={`bg-transparent ${itemClass}`} style={{ backgroundColor: "transparent" }}>
-                      {String.fromCharCode(65 + cIdx)}. {choiceText}
-                    </ListGroup.Item>
-                  )
-                })}
-              </ListGroup>
-            </Card.Body>
-          </Card>
-        )
-      })}
+                    return (
+                      <li key={cIdx} className={liClass}>
+                        {String.fromCharCode(65 + cIdx)}. {choiceText}
+                      </li>
+                    )
+                  })}
+                </ul>
+              </Card.Body>
+            </Card>
+          )
+        })}
+      </div>
 
-      {/* If already graded, show teacher’s feedback below */}
+      {/* Teacher feedback */}
       {grade != null && personal_feedback && (
         <Card className="mt-4">
           <Card.Body>

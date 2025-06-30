@@ -12,7 +12,8 @@ export function UserCoursesContainer() {
   const { courses, loading, error, deleteCourse } = useUserCourses()
 
   // 2) Copy them into local state so we can update a single item in-place
-  const [localCourses, setLocalCourses] = useState([])
+  const [generatingId, setGeneratingId] = useState(null)
+  const [alertMessage, setAlertMessage] = useState(null)
 
   // Whenever `courses` (from the hook) changes, overwrite localCourses
   useEffect(() => {
@@ -25,19 +26,27 @@ export function UserCoursesContainer() {
   const handleExamsVIew    = (id) => navigate(`/portal/teacher/courses/${id}/exams`)
   const handleDelete   = (id) => deleteCourse(id)
   const handleAddNew   = ()   => navigate('/portal/teacher/courses/create')
+  const [localCourses, setLocalCourses] = useState([])
+
 
   /**
    * Option B: Merge the updatedCourse into localCourses
    * rather than reloading the entire page.
    */
   const handleGenerateAudio = (id) => {
+    // kick off loading
+    setGeneratingId(id)
+    setAlertMessage(
+      'Your request is received and we are now generating the audio summarize! You can safely continue using the site.'
+    )
     generateAudio(id)
     .then((updatedCourse) => {
       // Replace only the one course in localCourses:
       setLocalCourses((prev) =>
         prev.map((c) => (c.id === updatedCourse.id ? updatedCourse : c))
       )
-      window.alert('Audio lecture has been generated and saved.')
+      // once done, clear loading
+      setGeneratingId(null)
     })
     .catch((err) => {
       console.error('Audio generation failed:', err)
@@ -48,18 +57,26 @@ export function UserCoursesContainer() {
   }
 
   return (
-    <UserCoursesUI
-      courses={localCourses}
-      loading={loading}
-      error={error}
-      onView={handleView}
-      onEdit={(id) => navigate(`/portal/teacher/courses/${id}/edit`)}
-      onDelete={handleDelete}
-      onProjects={handleProjects}
-      onCreateExam={handleExamsCreate}
-      onExamVIew={handleExamsVIew}
-      onGenerateAudio={handleGenerateAudio}
-      onAddNew={handleAddNew}
-    />
+    <>
+      {alertMessage && (
+        <div className="alert alert-success" role="alert">
+          {alertMessage}
+        </div>
+      )}
+      <UserCoursesUI
+        courses={localCourses}
+        loading={loading}
+        error={error}
+        onView={handleView}
+        onEdit={(id) => navigate(`/portal/teacher/courses/${id}/edit`)}
+        onDelete={handleDelete}
+        onProjects={handleProjects}
+        onCreateExam={handleExamsCreate}
+        onExamVIew={handleExamsVIew}
+        onGenerateAudio={handleGenerateAudio}
+        generatingId={generatingId}
+        onAddNew={handleAddNew}
+      />
+    </>
   )
 }

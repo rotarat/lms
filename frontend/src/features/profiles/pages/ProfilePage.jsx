@@ -1,5 +1,5 @@
+import ProfileContainer from '../containers/ProfileContainer'
+
 export default function ProfilePage() {
-  return (
-    <div>PRofile</div>
-  )
+  return <ProfileContainer />
 }

@@ -72,7 +72,7 @@ export function usePresentationForm() {
 
     try {
       if (isEdit) {
-        await presentationsApi.update(id, data)
+        await presentationsApi.patch(id, data)
       } else {
         await presentationsApi.create(data)
       }

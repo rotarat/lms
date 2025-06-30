@@ -1,78 +1,15 @@
+import os
 from rest_framework import viewsets, status
 from rest_framework.response import Response
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
-from .services import fetch_quiz_questions, ask_openai
-
-class QuizServiceViewSet(viewsets.ViewSet):
-    permission_classes = [IsAuthenticated]
-
-    def create(self, request):
-        text  = """
-Quantum Computers: Revolutionizing Computational Paradigms
-Quantum computers represent a transformative shift in the field of computation, rooted in the principles of quantum mechanics—superposition, entanglement, and quantum interference. Unlike classical computers, which use binary bits (0 or 1) to perform operations, quantum computers use quantum bits or qubits, which can exist in multiple states simultaneously. This unique property endows quantum computers with the potential to perform complex computations exponentially faster than classical systems for certain problems.
-
-Fundamental Principles
-Superposition is the ability of qubits to exist in a combination of 0 and 1 at the same time. This enables quantum systems to process a vast number of states simultaneously. A system of n qubits can represent 2ⁿ different configurations at once, offering immense parallelism.
-
-Entanglement is a non-classical correlation between qubits. When qubits are entangled, the state of one qubit is directly related to the state of another, no matter the distance between them. This phenomenon allows for highly coordinated operations across multiple qubits, which is crucial for quantum error correction and certain quantum algorithms.
-
-Quantum interference allows quantum systems to enhance the probability of correct answers and cancel out incorrect ones during computation. It plays a key role in guiding quantum computations toward meaningful solutions.
-
-Quantum Gates and Circuits
-In quantum computing, operations are performed using quantum gates, which manipulate qubits through unitary transformations. These gates—such as the Hadamard gate, Pauli gates (X, Y, Z), and the Controlled-NOT (CNOT) gate—are combined to form quantum circuits. These circuits execute quantum algorithms by evolving the quantum state of the system in a controlled manner.
-
-Unlike classical gates, quantum gates are reversible due to the unitarity of quantum mechanics. This reversibility is a defining characteristic that requires a fundamental rethinking of algorithmic design.
-
-Quantum Algorithms
-Several quantum algorithms showcase the potential superiority of quantum computers:
-
-Shor’s algorithm can factor large integers in polynomial time, threatening classical cryptographic systems like RSA.
-
-Grover’s algorithm offers quadratic speedup for unsorted database searches.
-
-Quantum simulation algorithms allow the modeling of complex quantum systems, which is infeasible for classical computers.
-
-These algorithms illustrate scenarios where quantum computers could provide exponential or polynomial advantages, changing the landscape of computational complexity.
-
-Challenges in Quantum Computing
-Despite their promise, quantum computers face significant challenges:
-
-Decoherence and noise: Qubits are highly sensitive to environmental interactions, leading to loss of quantum information. Error rates in quantum systems are currently high compared to classical systems.
-
-Scalability: Building a quantum computer with a large number of qubits while maintaining coherence and controllability is a formidable engineering task.
-
-Error correction: Quantum error correction requires encoding logical qubits using multiple physical qubits, significantly increasing resource demands. Techniques like the surface code and topological qubits are under active research.
-
-Current Progress and Applications
-Major companies and research institutions—such as IBM, Google, and IonQ—are actively developing quantum hardware and cloud-based quantum platforms. Quantum processors based on superconducting circuits, trapped ions, and photonic systems are being tested for scalability, coherence, and gate fidelity.
-
-Applications extend beyond cryptography and include optimization, materials science, machine learning, and drug discovery. For instance, quantum algorithms can help identify optimal configurations in complex systems or simulate molecular interactions at unprecedented levels of detail.
-
-Conclusion
-Quantum computers harness the strange and powerful laws of quantum mechanics to tackle problems that remain intractable for classical machines. While practical, fault-tolerant quantum computing is still a work in progress, the field has made significant strides, transitioning from theoretical constructs to early-stage devices. As the technology matures, it holds the promise of redefining the frontiers of computation and science.
-
-"""
-        difficulty = request.data.get('difficulty')
-        category = request.data.get('category')
-        questions = request.data.get('num_questions')
-
-        if not (text or difficulty or category or questions):
-            return Response(
-                {"error": "Both 'text_content' and 'quiz_level' are required."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        try:
-            #Todo:  Add category
-            questions = fetch_quiz_questions(text, difficulty, questions)
-            print(questions)
-        except Exception as e:
-            return Response(
-                {"detail": str(e)},
-                status=status.HTTP_502_BAD_GATEWAY
-            )
-
-        return Response({"questions": questions}, status=status.HTTP_200_OK)
+from django.http import FileResponse
+from rest_framework.parsers import MultiPartParser, FormParser
+from .services import fetch_quiz_questions, ask_openai, generate_or_explain_diagram  
+from core.settings import MEDIA_ROOT, MEDIA_URL
+from .models import AdaptiveQuizSession, WrongQuizAnswer
+from .serializers import WrongQuizAnswerSerializer, WrongQuizAnswerReflectionSerializer
+from courses.models import Course
     
 class ChatbotServiceViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
@@ -89,3 +26,263 @@ class ChatbotServiceViewSet(viewsets.ViewSet):
         response = ask_openai(message)
         
         return Response({"message_resp": response}, status=status.HTTP_200_OK)
+    
+class DiagramViewSet(viewsets.ViewSet):
+    """
+    A lean ViewSet that:
+      - POST /api/ai/diagrams/      → create()
+      - GET  /api/ai/diagrams/{name}/ → retrieve()
+    """
+
+    parser_classes = [MultiPartParser, FormParser]
+
+    def create(self, request):
+        """
+        POST /api/ai/diagrams/
+        Required fields in request.data:
+          - text:         str   (description or prompt)
+          - action:       "diagram" or "explanation"
+          - image:        file (only if action == "explanation")
+        Returns JSON:
+          - { "imageUrl": "<full-url>" }       OR
+          - { "explanation": "<...>" }
+        """
+        text = request.data.get('text', '').strip()
+        action = request.data.get('action', '').strip().lower()
+        image_file = request.data.get('image', None)
+
+        if action not in ("diagram", "explanation"):
+            return Response(
+                {"error": "Field 'action' must be either 'diagram' or 'explanation'."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if action == "diagram" and not text:
+            return Response(
+                {"error": "Field 'text' is required for diagram generation."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if action == "explanation" and image_file is None:
+            return Response(
+                {"error": "To get an explanation, please upload an image."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            png_filename, explanation_text = generate_or_explain_diagram(
+                text=text,
+                image_file=image_file,
+                action=action
+            )
+        except Exception as exc:
+            return Response(
+                {"error": str(exc)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+        if action == "diagram":
+            relative_url = f"{MEDIA_URL}diagrams/{png_filename}"
+            full_url   = request.build_absolute_uri(relative_url)
+            return Response({"imageUrl": full_url, "explanation": explanation_text})
+
+        # action == "explanation"
+        return Response({"explanation": explanation_text})
+
+    def retrieve(self, request, pk=None):
+        """
+        GET /api/ai/diagrams/{pk}/
+        Serves the file at MEDIA_ROOT/diagrams/{pk} as an attachment.
+        """
+        if pk is None:
+            raise status.HTTP_404_NOT_FOUND("Missing diagram name.")
+
+        diagram_path = os.path.join(MEDIA_ROOT, 'diagrams', pk)
+        if not os.path.exists(diagram_path):
+            raise status.HTTP_404_NOT_FOUND(f"Diagram '{pk}' not found.")
+
+        return FileResponse(
+            open(diagram_path, 'rb'),
+            as_attachment=False,
+            filename=pk,
+            content_type="image/png"
+        )
+    
+class AdaptiveQuizViewSet(viewsets.ViewSet):
+    """
+    - GET  /api/quiz/adaptive/  → initialize session & return first question
+    - POST /api/quiz/adaptive/next/ → accept student's answer to last question, return next question or finished.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request):
+        """
+        Initialize a new adaptive session and return the first MCQ.
+        Query params:
+          - course_id
+          - text   (source material)
+          - difficulty (string)
+          - total    (int)
+        """
+        user = request.user.profile.personal_data
+        course_id  = request.query_params.get("course_id")
+        difficulty = request.query_params.get("difficulty")
+        total      = int(request.query_params.get("total", 10))
+
+        # Validate inputs (course exists, difficulty valid, etc.)
+        if not (course_id and difficulty):
+            return Response(
+                {"detail": "Missing one of course_id, text, or difficulty."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        try:
+            course = Course.objects.get(id=course_id)
+        except Course.DoesNotExist:
+            return Response({"detail": "Course not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        #TODO: Add lecture text to Course model
+        video = course.videos.first()
+        if not video:
+            return Response({"detail": "No video found."}, status=status.HTTP_404_NOT_FOUND)
+        text = video.script or ""
+
+        # Create session
+        session = AdaptiveQuizSession.objects.create(
+            personal_data=user,
+            course=course,
+            text=text,
+            initial_difficulty=difficulty,
+            total_questions=total,
+            asked_count=0,
+            last_difficulty=difficulty,
+        )
+
+        # Generate first question at initial difficulty
+        first_mcq = fetch_quiz_questions(text, difficulty)
+        session.asked_count = 1
+        session.save(update_fields=["asked_count"])
+
+        # Return session_id + question
+        return Response({
+            "session_id": str(session.id),
+            "question": first_mcq
+        }, status=status.HTTP_200_OK)
+
+    def create(self, request):
+        """
+        Called by front end when user clicks “Next” after answering last question.
+        Body (JSON):
+          {
+            "session_id": "<uuid>",
+            "question": "<string>",      # from last question
+            "was_correct": true/false,
+            "submitted_answer": "<string>",  # if wrong
+            "distractors_with_rationale": [  # if wrong, from A
+                { "distractor": "<str>", "rationale": "<str>" }, …
+            ]
+          }
+        """
+        data        = request.data
+        sess_id     = data.get("session_id")
+        was_correct = data.get("was_correct")
+
+        # 1) Validate session
+        try:
+            session = AdaptiveQuizSession.objects.get(
+                id=sess_id,
+                personal_data=request.user.profile.personal_data
+            )
+        except AdaptiveQuizSession.DoesNotExist:
+            return Response(
+                {"detail": "Session not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # 2) If the student was wrong, save a WrongQuizAnswer
+        if not was_correct:
+            wq_data = {
+                "question": data.get("question"),
+                "submitted": data.get("submitted_answer"),
+                "correct": data.get("correct_answer"),
+                "distractors_with_rationale": data.get("distractors_with_rationale", []),
+                "course": session.course.id,
+                # pass the session *ID*, not the model instance
+                "session": session.id,
+            }
+            wq_serializer = WrongQuizAnswerSerializer(data=wq_data)
+            wq_serializer.is_valid(raise_exception=True)
+
+            # pass personal_data and session object into save(), not via data
+            wq_serializer.save(
+                personal_data=request.user.profile.personal_data,
+                session=session
+            )
+            # Signal will generate reflection_prompt asynchronously
+
+        # 3) Decide next difficulty and continue as before…
+        last_diff = session.last_difficulty or session.initial_difficulty
+        if was_correct and last_diff != "Hard":
+            next_diff = {"Easy":"Medium","Medium":"Hard"}.get(last_diff, last_diff)
+        elif not was_correct and last_diff != "Easy":
+            next_diff = {"Hard":"Medium","Medium":"Easy"}.get(last_diff, last_diff)
+        else:
+            next_diff = last_diff
+
+        if session.asked_count < session.total_questions:
+            next_mcq = fetch_quiz_questions(session.text, next_diff)
+            session.asked_count += 1
+            session.last_difficulty = next_diff
+            session.save(update_fields=["asked_count", "last_difficulty"])
+            return Response({
+                "question": next_mcq,
+                "remaining": session.total_questions - session.asked_count
+            }, status=status.HTTP_200_OK)
+        else:
+            session.finished = True
+            session.save(update_fields=["finished"])
+            return Response({"finished": True}, status=status.HTTP_200_OK)
+        
+    @action(detail=False, methods=['get'])
+    def reflections(self, request):
+        """
+        GET /api/ai/quiz/reflections/?session_id=<uuid>
+
+        Returns a list of WrongQuizAnswer records (with reflection_prompt, question, etc.)
+        for the current user's session. We filter on personal_data + course to fetch only
+        wrong answers from this session's course. Alternatively, if your model has session_id
+        linked directly, filter on that. But since WrongQuizAnswer only has personal_data & course:
+
+        Query param: session_id
+        """
+        sess_id = request.query_params.get('session_id')
+        if not sess_id:
+            return Response(
+                {"detail": "session_id is required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # 1) Verify that the session exists and belongs to the current user
+        try:
+            session = AdaptiveQuizSession.objects.get(
+                id=sess_id,
+                personal_data=request.user.profile.personal_data
+            )
+        except AdaptiveQuizSession.DoesNotExist:
+            return Response(
+                {"detail": "Quiz session not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # 2) Fetch all WrongQuizAnswer records for this user’s personal_data + course
+        wrong_qs = WrongQuizAnswer.objects.filter(
+            personal_data=request.user.profile.personal_data,
+            course=session.course,
+            session=session,
+        )
+
+        # 3) Serialize and return
+        serializer = WrongQuizAnswerReflectionSerializer(
+            wrong_qs,
+            many=True
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)

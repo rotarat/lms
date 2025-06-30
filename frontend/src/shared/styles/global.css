@@ -1,3 +1,9 @@
-.blur-backdrop .modal-backdrop {
-  backdrop-filter: blur(4px);
+.exam-modal.modal {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.exam-choices .list-group-item {
+  background-color: transparent !important;
+  border: none            !important;
 }

@@ -17,11 +17,6 @@ export function UserVideosUI({
     <>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h4 className="mb-0">My Videos</h4>
-        {canAdd && (
-          <Button variant="primary" onClick={onAddNew}>
-            Add New
-          </Button>
-        )}
       </div>
 
       {videos.length === 0 ? (

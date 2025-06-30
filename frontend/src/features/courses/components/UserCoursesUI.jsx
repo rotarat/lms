@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types'
 import { Button } from '../../../shared/components/Button'
+import { LoadingButton } from '../../../shared/components/LoadingButton'
 
 export function UserCoursesUI({
   courses,
@@ -12,6 +13,7 @@ export function UserCoursesUI({
   onEdit,
   onDelete,
   onGenerateAudio,
+  generatingId,
   onAddNew,
 }) {
   if (loading) return <p>Loading your courses…</p>
@@ -38,72 +40,75 @@ export function UserCoursesUI({
             {courses.map(c => (
               <tr key={c.id}>
                 <td>{c.title}</td>
-                <td>
-                  <Button
+                <td className="text-nowrap">
+                  <div className="d-flex flex-row flex-nowrap align-items-center gap-2">
+                    <Button
                     size="sm"
                     variant="info"
                     className="me-2"
                     onClick={() => onView(c.id)}
-                  >
-                    View
-                  </Button>
+                    >
+                      View
+                    </Button>
 
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    className="me-2"
-                    onClick={() => onProjects(c.id)}
-                  >
-                    Projects
-                  </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="me-2"
+                      onClick={() => onProjects(c.id)}
+                    >
+                      Projects
+                    </Button>
 
-                  <Button
-                    size="sm"
-                    variant="btn btn-sm btn-outline-primary"
-                    className="me-2"
-                    onClick={() => onCreateExam(c.id)}
-                  >
-                    Create Exam
-                  </Button>
+                    <Button
+                      size="sm"
+                      variant="btn btn-sm btn-primary"
+                      className="me-2"
+                      onClick={() => onCreateExam(c.id)}
+                    >
+                      Create Exam
+                    </Button>
 
-                  <Button
-                    size="sm"
-                    variant="btn btn-sm btn-outline-primary"
-                    className="me-2"
-                    onClick={() => onExamVIew(c.id)}
-                  >
-                    View Exam
-                  </Button>
+                    <Button
+                      size="sm"
+                      variant="btn btn-sm btn-primary"
+                      className="me-2"
+                      onClick={() => onExamVIew(c.id)}
+                    >
+                      View Exam
+                    </Button>
 
-                  <Button
-                    size="sm"
-                    variant="warning"
-                    className="me-2"
-                    onClick={() => onGenerateAudio(c.id)}
-                  >
-                    Create audio lecture
-                  </Button>
+                    <LoadingButton
+                      size="sm"
+                      variant="warning"
+                      loading={generatingId === c.id}
+                      loadingLabel="Loading…"
+                      onClick={() => onGenerateAudio(c.id)}
+                    >
+                      Create audio lecture
+                    </LoadingButton>
 
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    className="me-2"
-                    onClick={() => onEdit(c.id)}
-                  >
-                    Edit
-                  </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="me-2"
+                      onClick={() => onEdit(c.id)}
+                    >
+                      Edit
+                    </Button>
 
-                  <Button
-                    size="sm"
-                    variant="danger"
-                    onClick={() => {
-                      if (window.confirm('Really delete this course?')) {
-                        onDelete(c.id)
-                      }
-                    }}
-                  >
-                    Delete
-                  </Button>
+                    <Button
+                      size="sm"
+                      variant="danger"
+                      onClick={() => {
+                        if (window.confirm('Really delete this course?')) {
+                          onDelete(c.id)
+                        }
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -125,5 +130,6 @@ UserCoursesUI.propTypes = {
   onEdit:         PropTypes.func.isRequired,
   onDelete:       PropTypes.func.isRequired,
   onGenerateAudio: PropTypes.func.isRequired,
+  generatingId:    PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   onAddNew:       PropTypes.func.isRequired,
 }
